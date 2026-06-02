@@ -1,4 +1,7 @@
+import 'package:chatmate/screens/login_screen.dart';
+import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -11,22 +14,76 @@ class SplashScreen extends StatefulWidget {
 
 class SplashScreenState extends State<SplashScreen> {
   @override
+  void initState() {
+    super.initState();
+
+    Future.delayed(const Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    final theme = Theme.of(context);
+
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFE8F0EF), Color.fromARGB(255, 129, 194, 183)],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: AppBackground(
         child: Center(
-          child: Text(
-            'ChatMate',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: screenHeight * 0.18,
+                width: screenWidth * 0.4,
+                clipBehavior: Clip.hardEdge,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Transform.scale(
+                  scale: 1.2, // adjust until white disappears
+                  child: Image.asset(
+                    'assets/images/message.png',
+                    fit: BoxFit.cover,
+                    alignment: Alignment.center,
+                  ),
+                ),
+              ),
+
+              SizedBox(height: screenHeight * 0.02),
+
+              SizedBox(height: screenHeight * 0.01),
+              Text(
+                'Effortless Connection',
+
+                style: GoogleFonts.poppins(
+                  fontSize: screenWidth * 0.03,
+                  fontWeight: FontWeight.w200,
+                ),
+              ),
+
+              SizedBox(height: screenHeight * 0.05),
+
+              Center(
+                child: CircularProgressIndicator(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              SizedBox(height: screenHeight * 0.05),
+              Text(
+                'Preparing your WorkSpace',
+
+                style: GoogleFonts.poppins(
+                  fontSize: screenWidth * 0.05,
+                  fontWeight: FontWeight.w200,
+                ),
+              ),
+            ],
           ),
         ),
       ),

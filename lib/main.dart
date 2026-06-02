@@ -1,4 +1,5 @@
 import 'package:chatmate/firebase_options.dart';
+import 'package:chatmate/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -56,11 +57,11 @@ class ChatMateApp extends StatelessWidget {
               primary: Colors.blue,
               onPrimary: Colors.white,
 
-              secondary: Color(0xFF03CF6D),
+              secondary: Color.fromARGB(255, 236, 233, 233),
               onSecondary: Colors.white,
 
-              background: Colors.white,
-              onBackground: Colors.black,
+              background: Color(0xd5f6ed),
+              onBackground: Color.fromARGB(255, 255, 255, 255),
 
               surface: Colors.white,
               onSurface: Colors.black,
