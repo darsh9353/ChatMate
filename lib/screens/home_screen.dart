@@ -1,100 +1,126 @@
+import 'dart:io';
+
+import 'package:chatmate/screens/settings_screen.dart';
+import 'package:chatmate/widgets/app_background.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import '../repositories/chat_repository.dart';
+import '../models/chat_model.dart';
 import 'contacts_screen.dart';
 
-class ChatModel {
-  final String id;
-  final String name;
-  final String lastMessage;
-  final String time;
+class HomeScreen extends StatelessWidget {
+  final String currentUserId;
 
-  ChatModel({
-    required this.id,
-    required this.name,
-    required this.lastMessage,
-    required this.time,
-  });
-}
+  const HomeScreen({super.key, required this.currentUserId});
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
-
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  List<ChatModel> chats = [];
-
-  // 🔥 Add chat when contact is clicked
-  void addChat(Map<String, dynamic> contact) {
-    final exists = chats.any((chat) => chat.id == contact['id']);
-
-    if (!exists) {
-      setState(() {
-        chats.add(
-          ChatModel(
-            id: contact['id'],
-            name: contact['name'],
-            lastMessage: "Start chatting...",
-            time: "Now",
-          ),
-        );
-      });
-    }
+  Stream<DocumentSnapshot> getUserData(String uid) {
+    return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
+    final chatRepo = ChatRepository();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("ChatMate"),
         actions: [
-          Row(
-            children: [
-              CircleAvatar(
-                radius: 10,
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-              ),
-              Icon(Icons.settings),
-            ],
+          StreamBuilder<DocumentSnapshot>(
+            stream: getUserData(currentUserId),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return const Padding(
+                  padding: EdgeInsets.only(right: 10),
+                  child: CircleAvatar(radius: 18),
+                );
+              }
+
+              final data = snapshot.data!.data() as Map<String, dynamic>;
+              final imagePath = data['profileImage'] ?? '';
+
+              return Padding(
+                padding: const EdgeInsets.only(right: 10),
+                child: Row(
+                  children: [
+                    // 🔥 Profile Image (LOCAL ONLY)
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundImage: imagePath.isNotEmpty
+                          ? FileImage(File(imagePath))
+                          : null,
+                      child: imagePath.isEmpty
+                          ? const Icon(Icons.person)
+                          : null,
+                    ),
+
+                    const SizedBox(width: 10),
+
+                    IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => SettingsScreen(
+                              name: data['name'],
+                              imagePath: imagePath, // from Firestore
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
         ],
       ),
 
-      body: chats.isEmpty
-          ? const Center(child: Text("No chats yet"))
-          : ListView.builder(
+      body: AppBackground(
+        child: StreamBuilder<List<ChatModel>>(
+          stream: chatRepo.getChats(currentUserId),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            final chats = snapshot.data!;
+
+            if (chats.isEmpty) {
+              return const Center(child: Text("No chats yet"));
+            }
+
+            return ListView.builder(
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
 
-                return Card(
-                  margin: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
+                return ListTile(
+                  leading: const CircleAvatar(child: Icon(Icons.person)),
+                  title: Text(
+                    chat.participants.where((id) => id != currentUserId).first,
                   ),
-                  child: ListTile(
-                    leading: CircleAvatar(child: Text(chat.name[0])),
-                    title: Text(chat.name),
-                    subtitle: Text(chat.lastMessage),
-                    trailing: Text(chat.time),
+                  subtitle: Text(chat.lastMessage),
+                  trailing: Text(
+                    "${chat.timestamp.hour}:${chat.timestamp.minute}",
                   ),
                 );
               },
-            ),
+            );
+          },
+        ),
+      ),
 
-      // 🔥 Open contacts
       floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          final selectedContact = await Navigator.push(
+        onPressed: () {
+          Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => const ContactsScreen()),
+            MaterialPageRoute(
+              builder: (_) => ContactsScreen(currentUserId: currentUserId),
+            ),
           );
-
-          if (selectedContact != null) {
-            addChat(selectedContact);
-          }
         },
         child: const Icon(Icons.add),
       ),

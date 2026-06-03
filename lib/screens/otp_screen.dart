@@ -1,10 +1,15 @@
+import 'package:chatmate/repositories/auth_repository.dart';
+import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
+import 'package:chatmate/services/auth_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class OtpScreen extends StatefulWidget {
-  const OtpScreen({super.key});
+  const OtpScreen({super.key, required String phoneNumber});
 
   @override
   State<OtpScreen> createState() => _OtpScreenState();
@@ -12,6 +17,7 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen> {
   final TextEditingController otpController = TextEditingController();
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +73,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       controller: otpController,
                       keyboardType: TextInputType.number,
                       textAlign: TextAlign.center,
-                      maxLength: 4,
+                      maxLength: 6,
 
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
 
@@ -98,27 +104,43 @@ class _OtpScreenState extends State<OtpScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         final otp = otpController.text.trim();
 
-                        if (otp.length != 4) {
+                        final user = await context
+                            .read<AuthRepository>()
+                            .verifyOtp(otp);
+
+                        if (user != null) {
+                          // Check if user exists in Firestore
+                          final doc = await FirebaseFirestore.instance
+                              .collection('users')
+                              .doc(user.uid)
+                              .get();
+
+                          if (doc.exists) {
+                            // EXISTING USER → HOME
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    HomeScreen(currentUserId: user.uid),
+                              ),
+                            );
+                          } else {
+                            // NEW USER → PROFILE SETUP
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const ProfileSetupScreen(),
+                              ),
+                            );
+                          }
+                        } else {
                           ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text("Enter valid 4-digit OTP"),
-                            ),
+                            const SnackBar(content: Text("Invalid OTP")),
                           );
-                          return;
                         }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const ProfileSetupScreen(),
-                          ),
-                        );
-
-                        //print("Entered OTP: $otp");
-
-                        //  verification logic
                       },
                       child: const Text(
                         "Verify",

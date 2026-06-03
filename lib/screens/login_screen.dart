@@ -1,6 +1,9 @@
+import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/otp_screen.dart';
+import 'package:chatmate/services/auth_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +15,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final numberController = TextEditingController();
+  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -145,21 +149,38 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                onPressed: () {
+                                onPressed: () async {
                                   if (_formKey.currentState!.validate()) {
                                     final phone =
                                         "+91${numberController.text.trim()}";
 
-                                    print(phone); // integrated +91
+                                    await context
+                                        .read<AuthRepository>()
+                                        .sendOtp(
+                                          phoneNumber: phone,
 
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => const OtpScreen(),
-                                      ),
-                                    );
+                                          onCodeSent: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => OtpScreen(
+                                                  phoneNumber: phone,
+                                                ),
+                                              ),
+                                            );
+                                          },
+
+                                          onError: (error) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(content: Text(error)),
+                                            );
+                                          },
+                                        );
                                   }
                                 },
+
                                 child: const Text(
                                   'Send OTP',
                                   style: TextStyle(

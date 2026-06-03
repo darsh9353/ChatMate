@@ -1,7 +1,11 @@
 import 'dart:io';
+import 'package:chatmate/models/user_model.dart';
+import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
@@ -15,10 +19,9 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController nameController = TextEditingController();
 
   File? selectedImage;
-
   final ImagePicker picker = ImagePicker();
 
-  //  Pick Image ONLY from Gallery
+  // 🔥 Pick Image ONLY from Gallery
   Future<void> pickImage() async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
@@ -26,6 +29,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
       setState(() {
         selectedImage = File(image.path);
       });
+
+      print("Selected Image Path: ${image.path}"); // debug
     }
   }
 
@@ -35,7 +40,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+        backgroundColor: Colors.white,
         elevation: 0,
         leading: const Icon(Icons.arrow_back),
         title: const Text(
@@ -108,7 +113,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                 const SizedBox(height: 30),
 
-                // Continue Button
+                // 🔥 Continue Button
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -120,8 +125,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                     ),
-                    onPressed: () {
+                    onPressed: () async {
                       final name = nameController.text.trim();
+                      final user = context
+                          .read<AuthRepository>()
+                          .getCurrentUser();
 
                       if (name.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -129,11 +137,45 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         );
                         return;
                       }
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => HomeScreen()),
-                      );
-                      //  Save to Firebase later
+
+                      if (user == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("User not logged in")),
+                        );
+                        return;
+                      }
+
+                      // ✅ Store LOCAL image path
+                      final imagePath = selectedImage?.path ?? '';
+
+                      try {
+                        final newUser = UserModel(
+                          uid: user.uid,
+                          name: name,
+                          phoneNumber: user.phoneNumber ?? "",
+                          profileImage: imagePath, // 🔥 LOCAL PATH
+                          isOnline: true,
+                          lastSeen: DateTime.now(),
+                        );
+
+                        await FirebaseFirestore.instance
+                            .collection('users')
+                            .doc(user.uid)
+                            .set(newUser.toMap());
+
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                HomeScreen(currentUserId: user.uid),
+                          ),
+                        );
+                      } catch (e) {
+                        print("Error: $e");
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text("Something went wrong")),
+                        );
+                      }
                     },
                     child: const Text(
                       "Continue",

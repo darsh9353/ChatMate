@@ -1,13 +1,25 @@
-import 'package:chatmate/services/chat_service.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/chat_model.dart';
 
 class ChatRepository {
-  final ChatService _chatService = ChatService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<void> sendMessage() async {
-    await _chatService.sendMessage();
+  //  Create Chat
+  Future<void> createChat(ChatModel chat) async {
+    await _firestore.collection('chats').doc(chat.chatId).set(chat.toMap());
   }
 
-  Stream<List> getMessages() {
-    return _chatService.getMessages();
+  // Get Chats of current user
+  Stream<List<ChatModel>> getChats(String currentUserId) {
+    return _firestore
+        .collection('chats')
+        .where('participants', arrayContains: currentUserId)
+        .orderBy('timestamp', descending: true)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => ChatModel.fromMap(doc.data()))
+              .toList();
+        });
   }
 }

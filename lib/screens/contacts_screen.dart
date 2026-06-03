@@ -1,46 +1,69 @@
+import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import '../models/user_model.dart';
+import '../repositories/user_repository.dart';
+import '../repositories/chat_repository.dart';
+import '../models/chat_model.dart';
 
 class ContactsScreen extends StatelessWidget {
-  const ContactsScreen({super.key});
+  final String currentUserId;
 
-  // 🔥 Dummy contacts
-  List<Map<String, dynamic>> getContacts() {
-    return [
-      {"id": "1", "name": "Elena Rodriguez"},
-      {"id": "2", "name": "Marcus Chen"},
-      {"id": "3", "name": "Julian Barnes"},
-      {"id": "4", "name": "Sarah Higgins"},
-      {"id": "5", "name": "Lila Voss"},
-      {"id": "6", "name": "David Smith"},
-    ];
-  }
+  const ContactsScreen({super.key, required this.currentUserId});
 
   @override
   Widget build(BuildContext context) {
-    final contacts = getContacts();
+    final userRepo = UserRepository();
+    final chatRepo = ChatRepository();
 
     return Scaffold(
       appBar: AppBar(title: const Text("All Contacts")),
 
-      body: ListView.builder(
-        itemCount: contacts.length,
-        itemBuilder: (context, index) {
-          final contact = contacts[index];
+      body: AppBackground(
+        child: StreamBuilder<List<UserModel>>(
+          stream: userRepo.getUsers(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          return Card(
-            margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            child: ListTile(
-              leading: CircleAvatar(child: Text(contact['name'][0])),
-              title: Text(contact['name']),
+            final users = snapshot.data!
+                .where((user) => user.uid != currentUserId)
+                .toList();
 
-              // 🔥 Send selected contact back
-              onTap: () {
-                Navigator.pop(context, contact);
+            return ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+
+                return ListTile(
+                  leading: CircleAvatar(child: Text(user.name[0])),
+                  title: Text(user.name),
+
+                  onTap: () async {
+                    final chatId = getChatId(currentUserId, user.uid);
+
+                    final chat = ChatModel(
+                      chatId: chatId,
+                      participants: [currentUserId, user.uid],
+                      lastMessage: "",
+                      timestamp: DateTime.now(),
+                    );
+
+                    await chatRepo.createChat(chat);
+
+                    Navigator.pop(context);
+                  },
+                );
               },
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+  }
+
+  // Generate unique chatId
+  String getChatId(String uid1, String uid2) {
+    return uid1.hashCode <= uid2.hashCode ? "$uid1\_$uid2" : "$uid2\_$uid1";
   }
 }
