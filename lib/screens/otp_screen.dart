@@ -1,3 +1,4 @@
+import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -108,6 +109,12 @@ class _OtpScreenState extends State<OtpScreen> {
                           );
                           return;
                         }
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfileSetupScreen(),
+                          ),
+                        );
 
                         //print("Entered OTP: $otp");
 
