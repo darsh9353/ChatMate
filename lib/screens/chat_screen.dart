@@ -1,241 +1,191 @@
-import 'dart:io';
-import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/message_model.dart';
+import '../repositories/chat_repository.dart';
 
-class SettingsScreen extends StatelessWidget {
-  final String name;
-  final String email;
-  final String imagePath;
+class ChatScreen extends StatefulWidget {
+  final String currentUserId;
+  final String chatId;
+  final String otherUserId;
+  final String otherUserName;
 
-  const SettingsScreen({
+  const ChatScreen({
     super.key,
-    required this.name,
-    required this.email,
-    required this.imagePath,
+    required this.currentUserId,
+    required this.chatId,
+    required this.otherUserId,
+    required this.otherUserName,
   });
+
+  @override
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final TextEditingController messageController = TextEditingController();
+  final ChatRepository chatRepo = ChatRepository();
+  final ScrollController scrollController = ScrollController();
+
+  // ENSURE CHAT EXISTS
+  Future<void> ensureChatExists(String lastMessage) async {
+    final chatRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(widget.chatId);
+
+    final doc = await chatRef.get();
+
+    if (!doc.exists) {
+      await chatRef.set({
+        'chatId': widget.chatId,
+        'participants': [widget.currentUserId, widget.otherUserId],
+        'lastMessage': lastMessage,
+        'timestamp': Timestamp.now(),
+      });
+    }
+  }
+
+  // SEND MESSAGE
+  Future<void> sendMessage() async {
+    final text = messageController.text.trim();
+    if (text.isEmpty) return;
+
+    // Ensure chat is created
+    await ensureChatExists(text);
+
+    final message = MessageModel(
+      messageId: const Uuid().v4(),
+      senderId: widget.currentUserId,
+      receiverId: widget.otherUserId,
+      message: text,
+      timestamp: DateTime.now(),
+      isSeen: false,
+    );
+
+    await chatRepo.sendMessage(chatId: widget.chatId, message: message);
+
+    messageController.clear();
+
+    //  Safe scroll
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    messageController.dispose();
+    scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F0EF),
+      appBar: AppBar(title: Text(widget.otherUserName)),
+      body: Column(
+        children: [
+          //  MESSAGE LIST
+          Expanded(
+            child: StreamBuilder<List<MessageModel>>(
+              stream: chatRepo.getMessages(widget.chatId),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        title: const Text(
-          "ChatMate",
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        centerTitle: false,
-      ),
+                final messages = snapshot.data!;
 
-      body: AppBackground(
-        child: Column(
-          children: [
-            const SizedBox(height: 20),
+                if (messages.isEmpty) {
+                  return const Center(child: Text("Say Hi 👋"));
+                }
 
-            //  PROFILE CARD
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(24),
-              ),
-              child: Column(
-                children: [
-                  // 🔥 Profile Image
-                  Stack(
-                    alignment: Alignment.bottomRight,
-                    children: [
-                      CircleAvatar(
-                        radius: 55,
-                        backgroundColor: Colors.grey.shade300,
-                        backgroundImage: imagePath.isNotEmpty
-                            ? FileImage(File(imagePath))
-                            : null,
-                        child: imagePath.isEmpty
-                            ? const Icon(Icons.person, size: 40)
-                            : null,
-                      ),
+                return ListView.builder(
+                  controller: scrollController,
+                  padding: const EdgeInsets.all(10),
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = messages[index];
+                    final isMe = msg.senderId == widget.currentUserId;
 
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: theme.colorScheme.primary,
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 18,
+                    return Align(
+                      alignment: isMe
+                          ? Alignment.centerRight
+                          : Alignment.centerLeft,
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(vertical: 5),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        constraints: const BoxConstraints(maxWidth: 250),
+                        decoration: BoxDecoration(
+                          color: isMe
+                              ? theme.colorScheme.primary
+                              : Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          msg.message,
+                          style: TextStyle(
+                            color: isMe ? Colors.white : Colors.black,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
 
-                  const SizedBox(height: 15),
-
-                  // 🔷 Name
-                  Text(
-                    name,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+          //  INPUT FIELD
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            color: Colors.white,
+            child: SafeArea(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: messageController,
+                      decoration: InputDecoration(
+                        hintText: "Type a message",
+                        filled: true,
+                        fillColor: Colors.grey.shade200,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(25),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
                     ),
                   ),
-
-                  const SizedBox(height: 6),
-
-                  // 🔷 Email
-                  Text(email, style: const TextStyle(color: Colors.grey)),
-
-                  const SizedBox(height: 12),
-
-                  // 🔷 Status Chips
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      _buildChip(
-                        "Premium User",
-                        Colors.blue.shade100,
-                        Colors.blue,
-                      ),
-                      const SizedBox(width: 10),
-                      _buildChip("Online", Colors.green.shade100, Colors.green),
-                    ],
+                  const SizedBox(width: 8),
+                  CircleAvatar(
+                    backgroundColor: theme.colorScheme.primary,
+                    child: IconButton(
+                      icon: const Icon(Icons.send, color: Colors.white),
+                      onPressed: sendMessage,
+                    ),
                   ),
                 ],
               ),
             ),
-
-            const SizedBox(height: 30),
-
-            // 🔷 Edit Profile Tile
-            _buildOptionTile(
-              icon: Icons.edit,
-              text: "Edit Profile",
-              iconBg: Colors.blue.shade100,
-              iconColor: Colors.blue,
-              onTap: () {},
-            ),
-
-            const SizedBox(height: 15),
-
-            // 🔷 Logout Tile
-            _buildOptionTile(
-              icon: Icons.logout,
-              text: "Logout",
-              iconBg: Colors.red.shade100,
-              iconColor: Colors.red,
-              onTap: () {
-                // TODO: logout logic
-              },
-            ),
-
-            const Spacer(),
-
-            // 🔷 Footer
-            Column(
-              children: const [
-                Text("ChatMate v2.4.0", style: TextStyle(color: Colors.grey)),
-                SizedBox(height: 5),
-                Text(
-                  "Made with care for connection",
-                  style: TextStyle(color: Colors.grey),
-                ),
-                SizedBox(height: 20),
-              ],
-            ),
-          ],
-        ),
-      ),
-
-      // 🔷 Bottom Navigation
-      bottomNavigationBar: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            _buildNavItem(Icons.chat, "Chats", false),
-            _buildNavItem(Icons.contacts, "Contacts", false),
-            _buildNavItem(Icons.settings, "Settings", true),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // 🔷 Chip Widget
-  Widget _buildChip(String text, Color bgColor, Color textColor) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Text(
-        text,
-        style: TextStyle(color: textColor, fontWeight: FontWeight.w500),
-      ),
-    );
-  }
-
-  // 🔷 Option Tile
-  Widget _buildOptionTile({
-    required IconData icon,
-    required String text,
-    required Color iconBg,
-    required Color iconColor,
-    required VoidCallback onTap,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.6),
-            borderRadius: BorderRadius.circular(20),
           ),
-          child: Row(
-            children: [
-              CircleAvatar(
-                backgroundColor: iconBg,
-                child: Icon(icon, color: iconColor),
-              ),
-              const SizedBox(width: 15),
-              Expanded(child: Text(text, style: const TextStyle(fontSize: 16))),
-              const Icon(Icons.arrow_forward_ios, size: 16),
-            ],
-          ),
-        ),
+        ],
       ),
-    );
-  }
-
-  // 🔷 Bottom Nav Item
-  Widget _buildNavItem(IconData icon, String label, bool isSelected) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        isSelected
-            ? Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade300,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Icon(icon),
-              )
-            : Icon(icon),
-        const SizedBox(height: 5),
-        Text(label),
-      ],
     );
   }
 }

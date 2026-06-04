@@ -43,7 +43,7 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 10),
                 child: Row(
                   children: [
-                    // 🔥 Profile Image (LOCAL ONLY)
+                    //  Profile Image (LOCAL ONLY)
                     CircleAvatar(
                       radius: 18,
                       backgroundImage: imagePath.isNotEmpty
@@ -80,7 +80,7 @@ class HomeScreen extends StatelessWidget {
 
       body: AppBackground(
         child: StreamBuilder<List<ChatModel>>(
-          stream: chatRepo.getChats(currentUserId),
+          stream: chatRepo.getUserChats(currentUserId),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const Center(child: CircularProgressIndicator());
@@ -104,7 +104,8 @@ class HomeScreen extends StatelessWidget {
                   ),
                   subtitle: Text(chat.lastMessage),
                   trailing: Text(
-                    "${chat.timestamp.hour}:${chat.timestamp.minute}",
+                    "${chat.timestamp.hour.toString().padLeft(2, '0')}:"
+                    "${chat.timestamp.minute.toString().padLeft(2, '0')}",
                   ),
                 );
               },

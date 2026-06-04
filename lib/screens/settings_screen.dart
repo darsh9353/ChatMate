@@ -1,6 +1,10 @@
 import 'dart:io';
+import 'package:chatmate/repositories/auth_repository.dart';
+import 'package:chatmate/screens/contacts_screen.dart';
+import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsScreen extends StatelessWidget {
   final String name;
@@ -122,10 +126,21 @@ class SettingsScreen extends StatelessWidget {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: 2, // Settings selected
         onTap: (index) {
+          final user = context.read<AuthRepository>().getCurrentUser();
           if (index == 0) {
-            // Navigate to Chats
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => HomeScreen(currentUserId: user!.uid),
+              ),
+            );
           } else if (index == 1) {
-            // Navigate to Contacts
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ContactsScreen(currentUserId: user!.uid),
+              ),
+            );
           } else if (index == 2) {
             // Already in Settings
           }
