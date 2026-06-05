@@ -1,4 +1,5 @@
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -107,7 +108,13 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         // backgroundColor: theme.colorScheme.secondary,
-        title: Text(widget.otherUserName),
+        title: Row(
+          children: [
+            UserAvatar(userId: widget.otherUserId, radius: 16),
+            const SizedBox(width: 10),
+            Text(widget.otherUserName),
+          ],
+        ),
       ),
       body: AppBackground(
         child: Column(

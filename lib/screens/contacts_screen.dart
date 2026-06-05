@@ -1,5 +1,6 @@
 import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
 import '../models/user_model.dart';
 import '../repositories/user_repository.dart';
@@ -51,14 +52,7 @@ class ContactsScreen extends StatelessWidget {
 
                   child: ListTile(
                     contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.grey.shade400,
-                      child: Text(
-                        user.name[0].toUpperCase(),
-                        style: const TextStyle(color: Colors.black),
-                      ),
-                    ),
+                    leading: UserAvatar(userId: user.uid),
 
                     title: Text(
                       user.name,
