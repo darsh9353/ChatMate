@@ -16,17 +16,21 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-
+    //after delaying 2 seconds navigating to loginScreen
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacement(
+        // ignore: use_build_context_synchronously
         context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        MaterialPageRoute(
+          builder: (_) => const LoginScreen(),
+        ), //navigating to LoginScreen
       );
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    //taking screeen height and width
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -46,7 +50,7 @@ class SplashScreenState extends State<SplashScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Transform.scale(
-                  scale: 1.2, // adjust until white disappears
+                  scale: 1.2, // adjust app icon until white disappears
                   child: Image.asset(
                     'assets/images/message.png',
                     fit: BoxFit.cover,

@@ -1,54 +1,34 @@
-import 'package:chatmate/models/chat_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../models/chat_model.dart';
 import '../models/message_model.dart';
+import '../services/chat_service.dart';
 
 class ChatRepository {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final ChatService _chatService = ChatService();
 
-  //  Send Message
+  // Send message
   Future<void> sendMessage({
     required String chatId,
     required MessageModel message,
   }) async {
-    final chatRef = _firestore.collection('chats').doc(chatId);
+    await _chatService.sendMessage(chatId: chatId, messageMap: message.toMap());
+  }
 
-    // Add message to subcollection
-    await chatRef
-        .collection('messages')
-        .doc(message.messageId)
-        .set(message.toMap());
-
-    // Update last message in chat
-    await chatRef.update({
-      'lastMessage': message.message,
-      'timestamp': Timestamp.fromDate(message.timestamp),
+  // Get messages (convert to model)
+  Stream<List<MessageModel>> getMessages(String chatId) {
+    return _chatService.getMessages(chatId).map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return MessageModel.fromMap(doc.data() as Map<String, dynamic>);
+      }).toList();
     });
   }
 
-  //  Get Messages (Real-time)
-  Stream<List<MessageModel>> getMessages(String chatId) {
-    return _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .orderBy('timestamp')
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs
-              .map((doc) => MessageModel.fromMap(doc.data()))
-              .toList();
-        });
-  }
-
+  // Get user chats (convert to model)
   Stream<List<ChatModel>> getUserChats(String currentUserId) {
-    return FirebaseFirestore.instance
-        .collection('chats')
-        .where('participants', arrayContains: currentUserId)
-        .snapshots()
-        .map((snapshot) {
-          return snapshot.docs.map((doc) {
-            return ChatModel.fromMap(doc.data());
-          }).toList();
-        });
+    return _chatService.getUserChats(currentUserId).map((snapshot) {
+      return snapshot.docs.map((doc) {
+        return ChatModel.fromMap(doc.data() as Map<String, dynamic>);
+      }).toList();
+    });
   }
 }

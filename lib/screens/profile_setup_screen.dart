@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:chatmate/models/user_model.dart';
 import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/home_screen.dart';
+import 'package:chatmate/services/image_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -19,18 +20,19 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController nameController = TextEditingController();
 
   File? selectedImage;
-  final ImagePicker picker = ImagePicker();
+  String imageUrl = ''; // ✅ store ImageKit URL
 
-  // 🔥 Pick Image ONLY from Gallery
+  final ImagePicker picker = ImagePicker();
+  final ImageKitService imageService = ImageKitService();
+
+  // 🔥 Pick Image
   Future<void> pickImage() async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
     if (image != null) {
       setState(() {
-        selectedImage = File(image.path);
+        selectedImage = File(image.path); // preview
       });
-
-      print("Selected Image Path: ${image.path}"); // debug
     }
   }
 
@@ -63,17 +65,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                 const SizedBox(height: 25),
 
-                // 🔥 Profile Image
+                // 🔥 PROFILE IMAGE
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: [
                     CircleAvatar(
                       radius: 60,
-                      backgroundColor: Colors.grey.shade500,
+                      backgroundColor: Colors.grey.shade300,
                       backgroundImage: selectedImage != null
-                          ? FileImage(selectedImage!)
-                          : null,
-                      child: selectedImage == null
+                          ? FileImage(selectedImage!) // preview
+                          : (imageUrl.isNotEmpty
+                                    ? NetworkImage(imageUrl) // after upload
+                                    : null)
+                                as ImageProvider?,
+                      child: selectedImage == null && imageUrl.isEmpty
                           ? const Icon(Icons.person, size: 40)
                           : null,
                     ),
@@ -113,7 +118,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                 const SizedBox(height: 30),
 
-                // 🔥 Continue Button
+                // 🔥 CONTINUE BUTTON
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -145,15 +150,23 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         return;
                       }
 
-                      // ✅ Store LOCAL image path
-                      final imagePath = selectedImage?.path ?? '';
+                      // 🔥 Upload image to ImageKit
+                      if (selectedImage != null) {
+                        final uploadedUrl = await imageService.uploadImage(
+                          selectedImage!,
+                        );
+
+                        if (uploadedUrl != null) {
+                          imageUrl = uploadedUrl;
+                        }
+                      }
 
                       try {
                         final newUser = UserModel(
                           uid: user.uid,
                           name: name,
                           phoneNumber: user.phoneNumber ?? "",
-                          profileImage: imagePath, // 🔥 LOCAL PATH
+                          profileImage: imageUrl, // ✅ STORE URL
                           isOnline: true,
                           lastSeen: DateTime.now(),
                         );

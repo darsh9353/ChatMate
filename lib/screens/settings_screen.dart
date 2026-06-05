@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/contacts_screen.dart';
 import 'package:chatmate/screens/home_screen.dart';
@@ -6,7 +5,7 @@ import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
   final String name;
   final String imagePath;
 
@@ -16,6 +15,11 @@ class SettingsScreen extends StatelessWidget {
     required this.imagePath,
   });
 
+  @override
+  State<SettingsScreen> createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -36,7 +40,7 @@ class SettingsScreen extends StatelessWidget {
           children: [
             const SizedBox(height: 20),
 
-            //  PROFILE CARD
+            // PROFILE CARD
             Container(
               width: width * 0.5,
               margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -53,10 +57,12 @@ class SettingsScreen extends StatelessWidget {
                       CircleAvatar(
                         radius: 55,
                         backgroundColor: Colors.grey.shade300,
-                        backgroundImage: imagePath.isNotEmpty
-                            ? FileImage(File(imagePath))
+
+                        backgroundImage: widget.imagePath.isNotEmpty
+                            ? NetworkImage(widget.imagePath)
                             : null,
-                        child: imagePath.isEmpty
+
+                        child: widget.imagePath.isEmpty
                             ? const Icon(Icons.person, size: 40)
                             : null,
                       ),
@@ -76,7 +82,7 @@ class SettingsScreen extends StatelessWidget {
                   const SizedBox(height: 15),
 
                   Text(
-                    name,
+                    widget.name,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -88,7 +94,7 @@ class SettingsScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            //  SIMPLE BUTTONS
+            //  BUTTONS
             SizedBox(
               width: width * 0.7,
               height: 45,
@@ -96,9 +102,7 @@ class SettingsScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey.shade100,
                 ),
-                onPressed: () {
-                  // Logout logic
-                },
+                onPressed: () {},
                 child: const Text("Edit Profile"),
               ),
             ),
@@ -113,7 +117,9 @@ class SettingsScreen extends StatelessWidget {
                   backgroundColor: Colors.grey.shade100,
                 ),
                 onPressed: () {
-                  // Logout logic
+                  // await context.read<AuthRepository>().logout();
+
+                  // Navigator.pop(context);
                 },
                 child: const Text("Logout"),
               ),
@@ -122,11 +128,12 @@ class SettingsScreen extends StatelessWidget {
         ),
       ),
 
-      //  SIMPLE BOTTOM NAVIGATION
+      //  BOTTOM NAV
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 2, // Settings selected
+        currentIndex: 2,
         onTap: (index) {
           final user = context.read<AuthRepository>().getCurrentUser();
+
           if (index == 0) {
             Navigator.pushReplacement(
               context,
@@ -141,8 +148,6 @@ class SettingsScreen extends StatelessWidget {
                 builder: (_) => ContactsScreen(currentUserId: user!.uid),
               ),
             );
-          } else if (index == 2) {
-            // Already in Settings
           }
         },
         items: const [

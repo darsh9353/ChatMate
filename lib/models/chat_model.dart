@@ -2,13 +2,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class ChatModel {
   final String chatId;
-  final List<String> participants; //List of user IDs in this chat
+  final List<String> participants;
+  final Map<String, String> participantNames; //  NEW
   final String lastMessage;
-  final DateTime timestamp; //Time of last message (used for sorting chats)
+  final DateTime timestamp;
 
   ChatModel({
     required this.chatId,
     required this.participants,
+    required this.participantNames,
     required this.lastMessage,
     required this.timestamp,
   });
@@ -17,6 +19,7 @@ class ChatModel {
     return {
       'chatId': chatId,
       'participants': participants,
+      'participantNames': participantNames, // NEW
       'lastMessage': lastMessage,
       'timestamp': Timestamp.fromDate(timestamp),
     };
@@ -24,9 +27,12 @@ class ChatModel {
 
   factory ChatModel.fromMap(Map<String, dynamic> map) {
     return ChatModel(
-      chatId: map['chatId'] as String? ?? '',
+      chatId: map['chatId'] ?? '',
       participants: List<String>.from(map['participants'] ?? []),
-      lastMessage: map['lastMessage'] as String? ?? '',
+      participantNames: Map<String, String>.from(
+        map['participantNames'] ?? {},
+      ), //  NEW
+      lastMessage: map['lastMessage'] ?? '',
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] as Timestamp).toDate()
           : DateTime.now(),

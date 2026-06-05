@@ -20,6 +20,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    //taking screen height and width
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -62,9 +63,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
                     const SizedBox(height: 20),
 
-                    //  CARD
+                    //  Login CARD
                     Card(
-                      elevation: 3,
+                      elevation: 3, //z-axis movement
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(22),
                       ),
@@ -100,14 +101,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                                   // PHONE FIELD
                                   Expanded(
+                                    //it will make child widget to take  enitre available space
                                     child: TextFormField(
                                       controller: numberController,
                                       keyboardType: TextInputType.phone,
                                       maxLength: 10,
-
-                                      // textAlign: numberController.text.isEmpty
-                                      //     ? TextAlign.center
-                                      //     : TextAlign.start,
                                       textAlign: TextAlign.center,
                                       style: const TextStyle(
                                         fontSize: 20,
@@ -137,7 +135,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                             const SizedBox(height: 25),
 
-                            // BUTTON
+                            //Send OTP Button
                             SizedBox(
                               width: double.infinity,
                               height: 50,
@@ -158,7 +156,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                         .read<AuthRepository>()
                                         .sendOtp(
                                           phoneNumber: phone,
-
                                           onCodeSent: () {
                                             Navigator.push(
                                               context,

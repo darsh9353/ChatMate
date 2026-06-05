@@ -12,7 +12,7 @@ class AppBackground extends StatelessWidget {
       height: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFE8F0EF), Color(0xFF81C2B7)],
+          colors: [Color(0xFFE8F0EF), Color.fromARGB(255, 176, 212, 206)],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -46,8 +47,9 @@ class HomeScreen extends StatelessWidget {
                     //  Profile Image (LOCAL ONLY)
                     CircleAvatar(
                       radius: 18,
-                      backgroundImage: imagePath.isNotEmpty
-                          ? FileImage(File(imagePath))
+                      backgroundImage:
+                          (imagePath.isNotEmpty && imagePath.startsWith('http'))
+                          ? NetworkImage(imagePath)
                           : null,
                       child: imagePath.isEmpty
                           ? const Icon(Icons.person)
@@ -96,16 +98,47 @@ class HomeScreen extends StatelessWidget {
               itemCount: chats.length,
               itemBuilder: (context, index) {
                 final chat = chats[index];
+                final otherUserId = chat.participants.firstWhere(
+                  (id) => id != currentUserId,
+                );
 
-                return ListTile(
-                  leading: const CircleAvatar(child: Icon(Icons.person)),
-                  title: Text(
-                    chat.participants.where((id) => id != currentUserId).first,
+                final otherUserName =
+                    chat.participantNames[otherUserId] ?? "User";
+
+                return Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
                   ),
-                  subtitle: Text(chat.lastMessage),
-                  trailing: Text(
-                    "${chat.timestamp.hour.toString().padLeft(2, '0')}:"
-                    "${chat.timestamp.minute.toString().padLeft(2, '0')}",
+                  padding: const EdgeInsets.symmetric(vertical: 5),
+
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200, //grey background
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+
+                  child: ListTile(
+                    leading: const CircleAvatar(child: Icon(Icons.person)),
+                    title: Text(otherUserName),
+                    subtitle: Text(chat.lastMessage),
+                    trailing: Text(
+                      "${chat.timestamp.hour.toString().padLeft(2, '0')}:"
+                      "${chat.timestamp.minute.toString().padLeft(2, '0')}",
+                    ),
+                    //
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatScreen(
+                            chatId: chat.chatId,
+                            currentUserId: currentUserId,
+                            otherUserId: otherUserId,
+                            otherUserName: otherUserName,
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 );
               },

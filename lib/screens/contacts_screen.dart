@@ -37,30 +37,59 @@ class ContactsScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 final user = users[index];
 
-                return ListTile(
-                  leading: CircleAvatar(child: Text(user.name[0])),
-                  title: Text(user.name),
+                return Container(
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 5),
 
-                  onTap: () {
-                    final chatService = ChatService();
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade200, //grey background
+                    borderRadius: BorderRadius.circular(12),
+                  ),
 
-                    final chatId = chatService.generateChatId(
-                      currentUserId,
-                      user.uid,
-                    );
+                  child: ListTile(
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 12),
 
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChatScreen(
-                          currentUserId: currentUserId,
-                          chatId: chatId,
-                          otherUserId: user.uid,
-                          otherUserName: user.name,
-                        ),
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey.shade400,
+                      child: Text(
+                        user.name[0].toUpperCase(),
+                        style: const TextStyle(color: Colors.black),
                       ),
-                    );
-                  },
+                    ),
+
+                    title: Text(
+                      user.name,
+                      style: const TextStyle(
+                        color: Colors.black, //  black text
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+
+                    onTap: () {
+                      final chatService = ChatService();
+
+                      final chatId = chatService.generateChatId(
+                        currentUserId,
+                        user.uid,
+                      );
+
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChatScreen(
+                            currentUserId: currentUserId,
+                            chatId: chatId,
+                            otherUserId: user.uid,
+                            otherUserName: user.name,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 );
               },
             );

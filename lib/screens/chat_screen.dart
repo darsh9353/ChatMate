@@ -1,3 +1,4 @@
+import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -36,9 +37,23 @@ class _ChatScreenState extends State<ChatScreen> {
     final doc = await chatRef.get();
 
     if (!doc.exists) {
+      //  GET CURRENT USER NAME FROM FIRESTORE
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.currentUserId)
+          .get();
+
+      final currentUserName = currentUserDoc['name'];
       await chatRef.set({
         'chatId': widget.chatId,
         'participants': [widget.currentUserId, widget.otherUserId],
+
+        //  ADD THIS
+        'participantNames': {
+          widget.currentUserId: currentUserName,
+          widget.otherUserId: widget.otherUserName,
+        },
+
         'lastMessage': lastMessage,
         'timestamp': Timestamp.now(),
       });
@@ -90,101 +105,115 @@ class _ChatScreenState extends State<ChatScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.otherUserName)),
-      body: Column(
-        children: [
-          //  MESSAGE LIST
-          Expanded(
-            child: StreamBuilder<List<MessageModel>>(
-              stream: chatRepo.getMessages(widget.chatId),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+      appBar: AppBar(
+        // backgroundColor: theme.colorScheme.secondary,
+        title: Text(widget.otherUserName),
+      ),
+      body: AppBackground(
+        child: Column(
+          children: [
+            //  MESSAGE LIST
+            Expanded(
+              child: StreamBuilder<List<MessageModel>>(
+                stream: chatRepo.getMessages(widget.chatId),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                final messages = snapshot.data!;
+                  final messages = snapshot.data!;
 
-                if (messages.isEmpty) {
-                  return const Center(child: Text("Say Hi 👋"));
-                }
+                  if (messages.isEmpty) {
+                    return const Center(child: Text("Say Hi 👋"));
+                  }
 
-                return ListView.builder(
-                  controller: scrollController,
-                  padding: const EdgeInsets.all(10),
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = messages[index];
-                    final isMe = msg.senderId == widget.currentUserId;
+                  return ListView.builder(
+                    controller: scrollController,
+                    padding: const EdgeInsets.all(10),
+                    itemCount: messages.length,
+                    itemBuilder: (context, index) {
+                      final msg = messages[index];
+                      final isMe = msg.senderId == widget.currentUserId;
 
-                    return Align(
-                      alignment: isMe
-                          ? Alignment.centerRight
-                          : Alignment.centerLeft,
-                      child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 5),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
+                      return Align(
+                        alignment: isMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.symmetric(vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 10,
+                          ),
+                          constraints: const BoxConstraints(maxWidth: 250),
+                          decoration: BoxDecoration(
+                            color: isMe
+                                ? theme.colorScheme.primary
+                                : Colors.grey.shade300,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Column(
+                            children: [
+                              Text(
+                                msg.message,
+                                style: TextStyle(
+                                  color: isMe ? Colors.white : Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                "${msg.timestamp.hour.toString().padLeft(2, '0')}:"
+                                "${msg.timestamp.minute.toString().padLeft(2, '0')}",
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
-                        constraints: const BoxConstraints(maxWidth: 250),
-                        decoration: BoxDecoration(
-                          color: isMe
-                              ? theme.colorScheme.primary
-                              : Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          msg.message,
-                          style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black,
-                            fontSize: 14,
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+
+            //  INPUT FIELD
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              color: Colors.white,
+              child: SafeArea(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: messageController,
+                        decoration: InputDecoration(
+                          hintText: "Type a message",
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(25),
+                            borderSide: BorderSide.none,
                           ),
                         ),
                       ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-
-          //  INPUT FIELD
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-            color: Colors.white,
-            child: SafeArea(
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: messageController,
-                      decoration: InputDecoration(
-                        hintText: "Type a message",
-                        filled: true,
-                        fillColor: Colors.grey.shade200,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
-                        ),
+                    ),
+                    const SizedBox(width: 8),
+                    CircleAvatar(
+                      backgroundColor: theme.colorScheme.primary,
+                      child: IconButton(
+                        icon: const Icon(Icons.send, color: Colors.white),
+                        onPressed: sendMessage,
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary,
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white),
-                      onPressed: sendMessage,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -86,7 +86,7 @@ class _OtpScreenState extends State<OtpScreen> {
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         counterText: "",
-                        hintText: "----",
+                        hintText: "------",
                       ),
                     ),
                   ),
