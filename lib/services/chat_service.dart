@@ -14,7 +14,6 @@ class ChatService {
         .collection('messages')
         .doc(messageMap['messageId'])
         .set(messageMap);
-
     await chatRef.update({
       'lastMessage': messageMap['message'],
       'timestamp': messageMap['timestamp'],
@@ -36,6 +35,7 @@ class ChatService {
     return _firestore
         .collection('chats')
         .where('participants', arrayContains: currentUserId)
+        .orderBy('timestamp', descending: true) // ADD HERE
         .snapshots();
   }
 }
