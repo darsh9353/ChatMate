@@ -9,9 +9,11 @@ import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
-
 import 'package:chatmate/blocs/chat_list/chat_list_event.dart';
+import 'package:chatmate/utils/date_formatter.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_state.dart';
+
+import 'package:chatmate/utils/date_formatter.dart';
 
 class HomeScreen extends StatefulWidget {
   final String currentUserId;
@@ -23,7 +25,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  
   @override
   void initState() {
     super.initState();
@@ -132,8 +133,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: Text(otherUserName),
                         subtitle: Text(chat.lastMessage),
                         trailing: Text(
-                          "${chat.timestamp.hour.toString().padLeft(2, '0')}:"
-                          "${chat.timestamp.minute.toString().padLeft(2, '0')}",
+                          DateFormatter.formatChatTime(chat.timestamp),
                         ),
                         onTap: () {
                           Navigator.push(

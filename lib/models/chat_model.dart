@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ChatModel {
   final String chatId;
   final List<String> participants;
-  final Map<String, String> participantNames; //  NEW
+  final Map<String, String> participantNames;
   final String lastMessage;
   final DateTime timestamp;
 
@@ -15,11 +15,13 @@ class ChatModel {
     required this.timestamp,
   });
 
+  DateTime get lastMessageTime => timestamp;
+
   Map<String, dynamic> toMap() {
     return {
       'chatId': chatId,
       'participants': participants,
-      'participantNames': participantNames, // NEW
+      'participantNames': participantNames,
       'lastMessage': lastMessage,
       'timestamp': Timestamp.fromDate(timestamp),
     };
@@ -29,9 +31,7 @@ class ChatModel {
     return ChatModel(
       chatId: map['chatId'] ?? '',
       participants: List<String>.from(map['participants'] ?? []),
-      participantNames: Map<String, String>.from(
-        map['participantNames'] ?? {},
-      ), //  NEW
+      participantNames: Map<String, String>.from(map['participantNames'] ?? {}),
       lastMessage: map['lastMessage'] ?? '',
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] as Timestamp).toDate()

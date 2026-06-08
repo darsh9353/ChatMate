@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/message_model.dart';
+import 'package:chatmate/utils/date_formatter.dart';
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -169,9 +170,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  "${msg.timestamp.hour.toString().padLeft(2, '0')}:"
-                                  "${msg.timestamp.minute.toString().padLeft(2, '0')}",
-                                  style: const TextStyle(fontSize: 12),
+                                  DateFormatter.formatChatTime(msg.timestamp),
+                                  style: TextStyle(fontSize: 12),
                                 ),
                               ],
                             ),
