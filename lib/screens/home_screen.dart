@@ -1,20 +1,36 @@
-import 'dart:io';
-
 import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import '../repositories/chat_repository.dart';
-import '../models/chat_model.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:chatmate/models/chat_model.dart';
 import 'contacts_screen.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-class HomeScreen extends StatelessWidget {
+import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
+
+import 'package:chatmate/blocs/chat_list/chat_list_event.dart';
+import 'package:chatmate/blocs/chat_list/chat_list_state.dart';
+
+class HomeScreen extends StatefulWidget {
   final String currentUserId;
 
   const HomeScreen({super.key, required this.currentUserId});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  
+  @override
+  void initState() {
+    super.initState();
+
+    // USE ChatListBloc
+    context.read<ChatListBloc>().add(LoadUserChatsEvent(widget.currentUserId));
+  }
 
   Stream<DocumentSnapshot> getUserData(String uid) {
     return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
@@ -22,8 +38,6 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final chatRepo = ChatRepository();
-
     return PopScope(
       canPop: false,
       child: Scaffold(
@@ -31,7 +45,7 @@ class HomeScreen extends StatelessWidget {
           title: const Text("ChatMate"),
           actions: [
             StreamBuilder<DocumentSnapshot>(
-              stream: getUserData(currentUserId),
+              stream: getUserData(widget.currentUserId),
               builder: (context, snapshot) {
                 if (!snapshot.hasData) {
                   return const Padding(
@@ -47,7 +61,6 @@ class HomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 10),
                   child: Row(
                     children: [
-                      //  Profile Image (LOCAL ONLY)
                       CircleAvatar(
                         radius: 18,
                         backgroundImage:
@@ -55,17 +68,11 @@ class HomeScreen extends StatelessWidget {
                                 imagePath.startsWith('http'))
                             ? NetworkImage(imagePath)
                             : null,
-                        onBackgroundImageError: (_, _) {
-                          // if fails to load
-                          print("Image load failed");
-                        },
                         child: imagePath.isEmpty
                             ? const Icon(Icons.person)
                             : null,
                       ),
-
                       const SizedBox(width: 10),
-
                       IconButton(
                         icon: const Icon(Icons.settings),
                         onPressed: () {
@@ -74,7 +81,7 @@ class HomeScreen extends StatelessWidget {
                             MaterialPageRoute(
                               builder: (_) => SettingsScreen(
                                 name: data['name'],
-                                imagePath: imagePath, // from Firestore
+                                imagePath: imagePath,
                               ),
                             ),
                           );
@@ -89,69 +96,70 @@ class HomeScreen extends StatelessWidget {
         ),
 
         body: AppBackground(
-          child: StreamBuilder<List<ChatModel>>(
-            stream: chatRepo.getUserChats(currentUserId),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const Center(child: CircularProgressIndicator());
-              }
+          child: BlocBuilder<ChatListBloc, ChatListState>(
+            builder: (context, state) {
+              if (state is ChatListLoaded) {
+                final chats = state.chats;
 
-              final chats = snapshot.data!;
+                if (chats.isEmpty) {
+                  return const Center(child: Text("No chats yet"));
+                }
 
-              if (chats.isEmpty) {
-                return const Center(child: Text("No chats yet"));
-              }
+                return ListView.builder(
+                  itemCount: chats.length,
+                  itemBuilder: (context, index) {
+                    final chat = chats[index];
 
-              return ListView.builder(
-                itemCount: chats.length,
-                itemBuilder: (context, index) {
-                  final chat = chats[index];
-                  final otherUserId = chat.participants.firstWhere(
-                    (id) => id != currentUserId,
-                  );
+                    final otherUserId = chat.participants.firstWhere(
+                      (id) => id != widget.currentUserId,
+                    );
 
-                  final otherUserName =
-                      chat.participantNames[otherUserId] ?? "User";
+                    final otherUserName =
+                        chat.participantNames[otherUserId] ?? "User";
 
-                  return Container(
-                    margin: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 2,
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 5),
-
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100, //grey background
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-
-                    child: ListTile(
-                      leading: UserAvatar(userId: otherUserId),
-
-                      title: Text(otherUserName),
-                      subtitle: Text(chat.lastMessage),
-                      trailing: Text(
-                        "${chat.timestamp.hour.toString().padLeft(2, '0')}:"
-                        "${chat.timestamp.minute.toString().padLeft(2, '0')}",
+                    return Container(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 2,
                       ),
-                      //
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ChatScreen(
-                              chatId: chat.chatId,
-                              currentUserId: currentUserId,
-                              otherUserId: otherUserId,
-                              otherUserName: otherUserName,
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: ListTile(
+                        leading: UserAvatar(userId: otherUserId),
+                        title: Text(otherUserName),
+                        subtitle: Text(chat.lastMessage),
+                        trailing: Text(
+                          "${chat.timestamp.hour.toString().padLeft(2, '0')}:"
+                          "${chat.timestamp.minute.toString().padLeft(2, '0')}",
+                        ),
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                chatId: chat.chatId,
+                                currentUserId: widget.currentUserId,
+                                otherUserId: otherUserId,
+                                otherUserName: otherUserName,
+                              ),
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  );
-                },
-              );
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              }
+
+              if (state is ChatListError) {
+                return Center(child: Text(state.message));
+              }
+
+              //  Default loader
+              return const Center(child: CircularProgressIndicator());
             },
           ),
         ),
@@ -161,7 +169,8 @@ class HomeScreen extends StatelessWidget {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ContactsScreen(currentUserId: currentUserId),
+                builder: (_) =>
+                    ContactsScreen(currentUserId: widget.currentUserId),
               ),
             );
           },

@@ -1,3 +1,4 @@
+import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:chatmate/firebase_options.dart';
 // import 'package:chatmate/screens/login_screen.dart';
@@ -13,6 +14,7 @@ import 'package:chatmate/repositories/chat_repository.dart';
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/chat/chat_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_bloc.dart';
+import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -44,6 +46,10 @@ class ChatMateApp extends StatelessWidget {
           // Chat Bloc
           BlocProvider<ChatBloc>(
             create: (context) => ChatBloc(context.read<ChatRepository>()),
+          ),
+
+          BlocProvider<ChatListBloc>(
+            create: (context) => ChatListBloc(context.read<ChatRepository>()),
           ),
 
           // Settings Bloc
