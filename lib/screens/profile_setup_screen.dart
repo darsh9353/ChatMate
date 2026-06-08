@@ -10,7 +10,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
 class ProfileSetupScreen extends StatefulWidget {
-  const ProfileSetupScreen({super.key});
+  final bool isEdit; // ADD THIS
+
+  const ProfileSetupScreen({
+    super.key,
+    this.isEdit = false, // default = first time login
+  });
 
   @override
   State<ProfileSetupScreen> createState() => _ProfileSetupScreenState();
@@ -20,12 +25,41 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   final TextEditingController nameController = TextEditingController();
 
   File? selectedImage;
-  String imageUrl = ''; // ✅ store ImageKit URL
+  String imageUrl = ''; //  store ImageKit URL
 
   final ImagePicker picker = ImagePicker();
   final ImageKitService imageService = ImageKitService();
 
-  // 🔥 Pick Image
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEdit) {
+      loadUserData();
+    }
+  }
+
+  Future<void> loadUserData() async {
+    final user = context.read<AuthRepository>().getCurrentUser();
+
+    if (user != null) {
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (doc.exists) {
+        final data = doc.data()!;
+
+        nameController.text = data['name'] ?? '';
+        imageUrl = data['profileImage'] ?? '';
+
+        setState(() {});
+      }
+    }
+  }
+
+  // Pick Image
   Future<void> pickImage() async {
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
@@ -65,7 +99,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                 const SizedBox(height: 25),
 
-                // 🔥 PROFILE IMAGE
+                // PROFILE IMAGE
                 Stack(
                   alignment: Alignment.bottomRight,
                   children: [
@@ -118,7 +152,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                 const SizedBox(height: 30),
 
-                // 🔥 CONTINUE BUTTON
+                //  CONTINUE BUTTON
                 SizedBox(
                   width: double.infinity,
                   height: 50,
@@ -150,7 +184,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         return;
                       }
 
-                      // 🔥 Upload image to ImageKit
+                      // Upload image to ImageKit
                       if (selectedImage != null) {
                         final uploadedUrl = await imageService.uploadImage(
                           selectedImage!,
@@ -166,7 +200,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           uid: user.uid,
                           name: name,
                           phoneNumber: user.phoneNumber ?? "",
-                          profileImage: imageUrl, // ✅ STORE URL
+                          profileImage: imageUrl, // STORE URL
                           isOnline: true,
                           lastSeen: DateTime.now(),
                         );
@@ -174,15 +208,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                         await FirebaseFirestore.instance
                             .collection('users')
                             .doc(user.uid)
-                            .set(newUser.toMap());
+                            .set(newUser.toMap(), SetOptions(merge: true));
 
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                HomeScreen(currentUserId: user.uid),
-                          ),
-                        );
+                        if (widget.isEdit) {
+                          // Coming from Settings
+                          Navigator.pop(
+                            context,
+                            {'name': name, 'image': imageUrl},
+                          ); // go back to SettingsScreen (but data loading slowly)
+                        } else {
+                          //  Coming from Login flow
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  HomeScreen(currentUserId: user.uid),
+                            ),
+                          );
+                        }
                       } catch (e) {
                         print("Error: $e");
                         ScaffoldMessenger.of(context).showSnackBar(

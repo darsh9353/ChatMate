@@ -5,7 +5,7 @@ class AuthService {
 
   String? _verificationId;
 
-  // 🔥 Send OTP
+  //  Send OTP
   Future<void> sendOtp({
     required String phoneNumber,
     required Function() onCodeSent,
@@ -34,7 +34,7 @@ class AuthService {
     );
   }
 
-  // 🔥 Verify OTP
+  //  Verify OTP
   Future<User?> verifyOtp(String otp) async {
     try {
       final credential = PhoneAuthProvider.credential(
@@ -51,8 +51,13 @@ class AuthService {
     }
   }
 
-  // 🔥 Get current user
+  //  Get current user
   User? getCurrentUser() {
     return _auth.currentUser;
+  }
+
+  // Logout
+  Future<void> logout() async {
+    await _auth.signOut();
   }
 }

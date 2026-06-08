@@ -27,8 +27,8 @@ class AuthRepository {
     return _authService.getCurrentUser();
   }
 
-  //  Logout
-  // Future<void> logout() async {
-  //   await _authService.logout();
-  // }
+  // Logout
+  Future<void> logout() async {
+    await _authService.logout();
+  }
 }

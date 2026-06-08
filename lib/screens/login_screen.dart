@@ -1,6 +1,7 @@
-import 'package:chatmate/repositories/auth_repository.dart';
+import 'package:chatmate/blocs/auth/auth_bloc.dart';
+import 'package:chatmate/blocs/auth/auth_event.dart';
+import 'package:chatmate/blocs/auth/auth_state.dart';
 import 'package:chatmate/screens/otp_screen.dart';
-import 'package:chatmate/services/auth_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,183 +16,190 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final numberController = TextEditingController();
-  final authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    //taking screen height and width
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      body: AppBackground(
-        child: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(20),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: screenHeight * 0.18,
-                      width: screenWidth * 0.4,
-                      clipBehavior: Clip.hardEdge,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Transform.scale(
-                        scale: 1.2,
-                        child: Image.asset(
-                          'assets/images/message.png',
-                          fit: BoxFit.cover,
-                          alignment: Alignment.center,
+      body: BlocListener<AuthBloc, AuthState>(
+        listener: (context, state) {
+          // Navigate when OTP sent
+          if (state is OtpSentState) {
+            final phone = "+91${numberController.text.trim()}";
+
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => OtpScreen(phoneNumber: phone)),
+            );
+          }
+
+          //  Error handling
+          if (state is AuthErrorState) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(state.message)));
+          }
+        },
+        child: AppBackground(
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: screenHeight * 0.18,
+                        width: screenWidth * 0.4,
+                        clipBehavior: Clip.hardEdge,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Transform.scale(
+                          scale: 1.2,
+                          child: Image.asset(
+                            'assets/images/message.png',
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 10),
 
-                    const Text(
-                      'LOGIN',
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+                      const SizedBox(height: 10),
 
-                    const SizedBox(height: 20),
-
-                    //  Login CARD
-                    Card(
-                      elevation: 3, //z-axis movement
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(22),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 30,
+                      const Text(
+                        'LOGIN',
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
                         ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 10),
+                      ),
 
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.secondary,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Row(
-                                children: [
-                                  //  +91 prefix
-                                  const Text(
-                                    '+91',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
+                      const SizedBox(height: 20),
 
-                                  const SizedBox(width: 2),
+                      Card(
+                        elevation: 3,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 30,
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(height: 10),
 
-                                  // PHONE FIELD
-                                  Expanded(
-                                    //it will make child widget to take  enitre available space
-                                    child: TextFormField(
-                                      controller: numberController,
-                                      keyboardType: TextInputType.phone,
-                                      maxLength: 10,
-                                      textAlign: TextAlign.center,
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-
-                                      decoration: const InputDecoration(
-                                        border: InputBorder.none,
-                                        counterText: "",
-                                        hintText: "Enter number",
-                                      ),
-
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return "Enter mobile number";
-                                        }
-                                        if (value.length != 10) {
-                                          return "Enter valid 10-digit number";
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            const SizedBox(height: 25),
-
-                            //Send OTP Button
-                            SizedBox(
-                              width: double.infinity,
-                              height: 50,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: theme.colorScheme.primary,
-                                  foregroundColor: theme.colorScheme.onPrimary,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12,
                                 ),
-                                onPressed: () async {
-                                  if (_formKey.currentState!.validate()) {
-                                    final phone =
-                                        "+91${numberController.text.trim()}";
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.secondary,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      '+91',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
 
-                                    await context
-                                        .read<AuthRepository>()
-                                        .sendOtp(
-                                          phoneNumber: phone,
-                                          onCodeSent: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => OtpScreen(
-                                                  phoneNumber: phone,
-                                                ),
+                                    const SizedBox(width: 2),
+
+                                    Expanded(
+                                      child: TextFormField(
+                                        controller: numberController,
+                                        keyboardType: TextInputType.phone,
+                                        maxLength: 10,
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        decoration: const InputDecoration(
+                                          border: InputBorder.none,
+                                          counterText: "",
+                                          hintText: "Enter number",
+                                        ),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Enter mobile number";
+                                          }
+                                          if (value.length != 10) {
+                                            return "Enter valid 10-digit number";
+                                          }
+                                          return null;
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                              const SizedBox(height: 25),
+
+                              ///  BUTTON WITH BLOC
+                              SizedBox(
+                                width: double.infinity,
+                                height: 50,
+                                child: BlocBuilder<AuthBloc, AuthState>(
+                                  builder: (context, state) {
+                                    return ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            theme.colorScheme.primary,
+                                        foregroundColor:
+                                            theme.colorScheme.onPrimary,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: state is AuthLoading
+                                          ? null
+                                          : () {
+                                              if (_formKey.currentState!
+                                                  .validate()) {
+                                                final phone =
+                                                    "+91${numberController.text.trim()}";
+
+                                                // CALL BLOC
+                                                context.read<AuthBloc>().add(
+                                                  SendOtpEvent(phone),
+                                                );
+                                              }
+                                            },
+                                      child: state is AuthLoading
+                                          ? const CircularProgressIndicator(
+                                              color: Colors.white,
+                                            )
+                                          : const Text(
+                                              'Send OTP',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.w600,
                                               ),
-                                            );
-                                          },
-
-                                          onError: (error) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(content: Text(error)),
-                                            );
-                                          },
-                                        );
-                                  }
-                                },
-
-                                child: const Text(
-                                  'Send OTP',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                                            ),
+                                    );
+                                  },
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

@@ -21,3 +21,13 @@ class AuthErrorState extends AuthState {
 
   AuthErrorState(this.message);
 }
+
+class NewUserState extends AuthState {
+  final String userId;
+  NewUserState(this.userId);
+}
+
+class ExistingUserState extends AuthState {
+  final String userId;
+  ExistingUserState(this.userId);
+}

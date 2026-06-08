@@ -16,3 +16,12 @@ class VerifyOtpEvent extends AuthEvent {
 
 // Trigger logout
 class LogoutEvent extends AuthEvent {}
+
+class OtpSentInternalEvent extends AuthEvent {}
+
+class AuthErrorEvent extends AuthEvent {
+  final String message;
+  AuthErrorEvent(this.message);
+}
+
+class CheckAuthStatusEvent extends AuthEvent {}

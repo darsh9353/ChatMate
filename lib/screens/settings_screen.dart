@@ -1,6 +1,8 @@
 import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/contacts_screen.dart';
 import 'package:chatmate/screens/home_screen.dart';
+import 'package:chatmate/screens/login_screen.dart';
+import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,6 +22,16 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  late String name;
+  late String imagePath;
+
+  @override
+  void initState() {
+    super.initState();
+    name = widget.name;
+    imagePath = widget.imagePath;
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -58,23 +70,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         radius: 55,
                         backgroundColor: Colors.grey.shade300,
 
-                        backgroundImage: widget.imagePath.isNotEmpty
-                            ? NetworkImage(widget.imagePath)
+                        backgroundImage: imagePath.isNotEmpty
+                            ? NetworkImage(imagePath)
                             : null,
 
-                        child: widget.imagePath.isEmpty
+                        child: imagePath.isEmpty
                             ? const Icon(Icons.person, size: 40)
                             : null,
-                      ),
-
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundColor: theme.colorScheme.primary,
-                        child: const Icon(
-                          Icons.edit,
-                          color: Colors.white,
-                          size: 18,
-                        ),
                       ),
                     ],
                   ),
@@ -82,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   const SizedBox(height: 15),
 
                   Text(
-                    widget.name,
+                    name,
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -102,7 +104,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey.shade100,
                 ),
-                onPressed: () {},
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ProfileSetupScreen(isEdit: true),
+                    ),
+                  );
+
+                  if (result != null) {
+                    setState(() {
+                      name = result['name'];
+                      imagePath = result['image'];
+                    });
+                  }
+                },
                 child: const Text("Edit Profile"),
               ),
             ),
@@ -116,10 +132,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey.shade100,
                 ),
-                onPressed: () {
-                  // await context.read<AuthRepository>().logout();
-
-                  // Navigator.pop(context);
+                onPressed: () async {
+                  await context.read<AuthRepository>().logout();
+                  //clear entire screen stack,After logout, user cannot go back to HomeScreen
+                  Navigator.pushAndRemoveUntil(
+                    context,
+                    MaterialPageRoute(builder: (_) => LoginScreen()),
+                    (route) => false,
+                  );
                 },
                 child: const Text("Logout"),
               ),
