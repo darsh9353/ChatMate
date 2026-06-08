@@ -1,4 +1,5 @@
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
+import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:flutter/material.dart';
 import 'package:chatmate/firebase_options.dart';
 // import 'package:chatmate/screens/login_screen.dart';
@@ -14,7 +15,8 @@ import 'package:chatmate/repositories/chat_repository.dart';
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/chat/chat_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_bloc.dart';
-import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
+
+import 'package:chatmate/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,30 +57,21 @@ class ChatMateApp extends StatelessWidget {
           // Settings Bloc
           BlocProvider<SettingsBloc>(create: (context) => SettingsBloc()),
         ],
-        child: MaterialApp(
-          title: 'ChatMate',
-          debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            colorScheme: const ColorScheme(
-              brightness: Brightness.light,
 
-              primary: Colors.blue,
-              onPrimary: Colors.white,
+        child: BlocBuilder<SettingsBloc, SettingsState>(
+          builder: (context, settingsState) {
+            return MaterialApp(
+              title: 'ChatMate',
+              debugShowCheckedModeBanner: false,
 
-              secondary: Color.fromARGB(255, 236, 233, 233),
-              onSecondary: Colors.white,
+              theme: AppTheme.lightTheme,
+              darkTheme: AppTheme.darkTheme,
 
-              // background: Color(0xd5f6ed),
-              // onBackground: Color.fromARGB(255, 255, 255, 255),
-              surface: Colors.white,
-              onSurface: Colors.black,
+              themeMode: settingsState.themeMode,
 
-              error: Colors.red,
-              onError: Colors.white,
-            ),
-          ),
-
-          home: const SplashScreen(), //calling SplashScreen
+              home: const SplashScreen(),
+            );
+          },
         ),
       ),
     );

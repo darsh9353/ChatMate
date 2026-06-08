@@ -1,5 +1,15 @@
-abstract class SettingsState {}
+import 'package:flutter/material.dart';
 
-class SettingsInitial extends SettingsState {}
+class SettingsState {
+  final ThemeMode themeMode;
 
-class ThemeChanged extends SettingsState {}
+  SettingsState({required this.themeMode});
+
+  factory SettingsState.initial() {
+    return SettingsState(themeMode: ThemeMode.system);
+  }
+
+  SettingsState copyWith({ThemeMode? themeMode}) {
+    return SettingsState(themeMode: themeMode ?? this.themeMode);
+  }
+}

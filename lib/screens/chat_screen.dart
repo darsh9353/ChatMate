@@ -156,7 +156,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             decoration: BoxDecoration(
                               color: isMe
                                   ? theme.colorScheme.primary
-                                  : Colors.grey.shade300,
+                                  : Colors.grey.shade100,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -165,13 +165,18 @@ class _ChatScreenState extends State<ChatScreen> {
                                 Text(
                                   msg.message,
                                   style: TextStyle(
-                                    color: isMe ? Colors.white : Colors.black,
+                                    color: isMe
+                                        ? Colors.white
+                                        : theme.colorScheme.secondary,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   DateFormatter.formatChatTime(msg.timestamp),
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: theme.colorScheme.secondary,
+                                  ),
                                 ),
                               ],
                             ),

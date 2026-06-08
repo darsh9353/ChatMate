@@ -1,6 +1,9 @@
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
+import 'package:chatmate/blocs/settings/settings_bloc.dart';
+import 'package:chatmate/blocs/settings/settings_event.dart';
+import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/contacts_screen.dart';
 import 'package:chatmate/screens/home_screen.dart';
@@ -71,12 +74,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               const SizedBox(height: 20),
 
+              // 👤 PROFILE CARD
               Container(
                 width: width * 0.5,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
@@ -94,8 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 15),
                     Text(
                       name,
-                      style: const TextStyle(
-                        fontSize: 20,
+                      style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -103,14 +106,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
+              // 🌙 THEME TOGGLE (NEW)
+              BlocBuilder<SettingsBloc, SettingsState>(
+                builder: (context, state) {
+                  final isDark = state.themeMode == ThemeMode.dark;
+
+                  return Container(
+                    width: width * 0.7,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SwitchListTile(
+                      title: const Text("Dark Mode"),
+                      value: isDark,
+                      onChanged: (value) {
+                        context.read<SettingsBloc>().add(
+                          ToggleThemeEvent(value),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+
+              const SizedBox(height: 20),
+
+              //  EDIT PROFILE
               SizedBox(
                 width: width * 0.7,
                 height: 45,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade100,
+                    backgroundColor: theme.colorScheme.surface,
                   ),
                   onPressed: () async {
                     final result = await Navigator.push(
@@ -133,12 +164,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               const SizedBox(height: 15),
 
+              // LOGOUT
               SizedBox(
                 width: width * 0.7,
                 height: 45,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.grey.shade100,
+                    backgroundColor: theme.colorScheme.surface,
                   ),
                   onPressed: () {
                     context.read<AuthBloc>().add(LogoutEvent());
@@ -150,6 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
 
+        //  BOTTOM NAV
         bottomNavigationBar: BottomNavigationBar(
           currentIndex: 2,
           onTap: (index) {
