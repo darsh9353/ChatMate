@@ -2,7 +2,6 @@ import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:flutter/material.dart';
 import 'package:chatmate/firebase_options.dart';
-// import 'package:chatmate/screens/login_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chatmate/screens/splash_screen.dart';
@@ -20,9 +19,8 @@ import 'package:chatmate/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  ); //initializing firebase
+
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(const ChatMateApp());
 }
@@ -34,39 +32,29 @@ class ChatMateApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
-        // Repositories
         RepositoryProvider<AuthRepository>(create: (_) => AuthRepository()),
         RepositoryProvider<ChatRepository>(create: (_) => ChatRepository()),
       ],
       child: MultiBlocProvider(
         providers: [
-          // Auth Bloc
           BlocProvider<AuthBloc>(
             create: (context) => AuthBloc(context.read<AuthRepository>()),
           ),
-
-          // Chat Bloc
           BlocProvider<ChatBloc>(
             create: (context) => ChatBloc(context.read<ChatRepository>()),
           ),
-
           BlocProvider<ChatListBloc>(
             create: (context) => ChatListBloc(context.read<ChatRepository>()),
           ),
-
-          // Settings Bloc
           BlocProvider<SettingsBloc>(create: (context) => SettingsBloc()),
         ],
-
         child: BlocBuilder<SettingsBloc, SettingsState>(
           builder: (context, settingsState) {
             return MaterialApp(
               title: 'ChatMate',
               debugShowCheckedModeBanner: false,
-
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
-
               themeMode: settingsState.themeMode,
 
               home: const SplashScreen(),
@@ -77,16 +65,3 @@ class ChatMateApp extends StatelessWidget {
     );
   }
 }
-
-
-/* 
-UI (Screens)
-   ↓
-Bloc (AuthBloc, ChatBloc)
-   ↓
-Repository (AuthRepository, ChatRepository)
-   ↓
-Services
-   ↓
-Firebase / API / Database
-*/

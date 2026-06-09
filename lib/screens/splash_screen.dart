@@ -10,7 +10,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
-
   @override
   State<SplashScreen> createState() => SplashScreenState();
 }
@@ -20,8 +19,8 @@ class SplashScreenState extends State<SplashScreen> {
   void initState() {
     super.initState();
 
-    //  Trigger auth check
-    Future.microtask(() {
+    Future.wait([Future.delayed(const Duration(seconds: 2))]).then((_) {
+      if (!mounted) return;
       context.read<AuthBloc>().add(CheckAuthStatusEvent());
     });
   }
@@ -35,6 +34,8 @@ class SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
+          if (!mounted) return;
+
           if (state is AuthenticatedState) {
             final user = context
                 .read<AuthBloc>()
@@ -44,9 +45,7 @@ class SplashScreenState extends State<SplashScreen> {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(
-                builder: (_) => HomeScreen(
-                  currentUserId: user!.uid, //  pass userId
-                ),
+                builder: (_) => HomeScreen(currentUserId: user!.uid),
               ),
             );
           }
@@ -66,15 +65,11 @@ class SplashScreenState extends State<SplashScreen> {
                 Container(
                   height: screenHeight * 0.18,
                   width: screenWidth * 0.4,
-                  clipBehavior: Clip.hardEdge,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Transform.scale(
-                    scale: 1.2,
-                    child: Image.asset(
-                      'assets/images/message.png',
-                      fit: BoxFit.cover,
+                    image: const DecorationImage(
+                      image: AssetImage('assets/images/message.png'),
+                      fit: BoxFit.cover, // change to contain if needed
                     ),
                   ),
                 ),
@@ -83,9 +78,10 @@ class SplashScreenState extends State<SplashScreen> {
 
                 Text(
                   'Effortless Connection',
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.03,
-                    fontWeight: FontWeight.w200,
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.035,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black,
                   ),
                 ),
 
@@ -96,10 +92,11 @@ class SplashScreenState extends State<SplashScreen> {
                 SizedBox(height: screenHeight * 0.05),
 
                 Text(
-                  'Preparing your WorkSpace',
-                  style: GoogleFonts.poppins(
-                    fontSize: screenWidth * 0.05,
-                    fontWeight: FontWeight.w200,
+                  'Preparing your Workspace',
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.045,
+                    fontWeight: FontWeight.w300,
+                    color: Colors.black,
                   ),
                 ),
               ],

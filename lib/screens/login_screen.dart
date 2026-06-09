@@ -65,15 +65,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         height: screenHeight * 0.18,
                         width: screenWidth * 0.4,
-                        clipBehavior: Clip.hardEdge,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Transform.scale(
-                          scale: 1.2,
-                          child: Image.asset(
-                            'assets/images/message.png',
-                            fit: BoxFit.cover,
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/message.png'),
+                            fit: BoxFit.cover, // change to contain if needed
                           ),
                         ),
                       ),
