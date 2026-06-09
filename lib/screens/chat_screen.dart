@@ -4,6 +4,7 @@ import 'package:chatmate/blocs/chat/chat_state.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -113,6 +114,10 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: theme.colorScheme.surface,
+        systemOverlayStyle: theme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         title: Row(
           children: [
             UserAvatar(userId: widget.otherUserId, radius: 16),
@@ -156,7 +161,7 @@ class _ChatScreenState extends State<ChatScreen> {
                             decoration: BoxDecoration(
                               color: isMe
                                   ? theme.colorScheme.primary
-                                  : Colors.grey.shade100,
+                                  : theme.colorScheme.secondary,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Column(
@@ -166,8 +171,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   msg.message,
                                   style: TextStyle(
                                     color: isMe
-                                        ? Colors.white
-                                        : theme.colorScheme.secondary,
+                                        ? theme.colorScheme.onPrimary
+                                        : theme.colorScheme.onSecondary,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
@@ -175,7 +180,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                   DateFormatter.formatChatTime(msg.timestamp),
                                   style: TextStyle(
                                     fontSize: 12,
-                                    color: theme.colorScheme.secondary,
+                                    color: isMe
+                                        ? theme.colorScheme.onPrimary
+                                        : theme.colorScheme.onSecondary,
                                   ),
                                 ),
                               ],
@@ -198,16 +205,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
             Container(
               padding: const EdgeInsets.all(10),
-              color: Colors.white,
+              color: theme.colorScheme.surface,
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
+                      textAlign: TextAlign.center,
+                      style: TextStyle(color: theme.colorScheme.onSecondary),
                       controller: messageController,
                       decoration: InputDecoration(
                         hintText: "Type a message",
                         filled: true,
-                        fillColor: Colors.grey.shade200,
+                        fillColor: theme.colorScheme.secondary,
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(25),
                           borderSide: BorderSide.none,

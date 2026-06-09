@@ -11,6 +11,7 @@ import 'package:chatmate/screens/login_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -61,7 +62,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.transparent,
+          backgroundColor: theme.colorScheme.surface,
+          systemOverlayStyle: theme.brightness == Brightness.dark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark,
           elevation: 0,
           title: const Text(
             "ChatMate",
@@ -74,7 +78,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               const SizedBox(height: 20),
 
-              // 👤 PROFILE CARD
+              //  PROFILE CARD
               Container(
                 width: width * 0.5,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
@@ -87,7 +91,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     CircleAvatar(
                       radius: 55,
-                      backgroundColor: Colors.grey.shade300,
+                      backgroundColor: theme.colorScheme.secondary,
                       backgroundImage: imagePath.isNotEmpty
                           ? NetworkImage(imagePath)
                           : null,
@@ -108,7 +112,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               const SizedBox(height: 20),
 
-              // 🌙 THEME TOGGLE (NEW)
+              // THEME TOGGLE (NEW)
               BlocBuilder<SettingsBloc, SettingsState>(
                 builder: (context, state) {
                   final isDark = state.themeMode == ThemeMode.dark;
@@ -184,6 +188,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
         //  BOTTOM NAV
         bottomNavigationBar: BottomNavigationBar(
+          selectedItemColor: theme.colorScheme.primary,
           currentIndex: 2,
           onTap: (index) {
             final user = context.read<AuthRepository>().getCurrentUser();
@@ -204,7 +209,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             }
           },
-          items: const [
+          items: [
             BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chats"),
             BottomNavigationBarItem(
               icon: Icon(Icons.contacts),

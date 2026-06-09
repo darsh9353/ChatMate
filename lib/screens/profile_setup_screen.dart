@@ -6,6 +6,7 @@ import 'package:chatmate/services/image_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -76,8 +77,10 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: theme.colorScheme.surface,
+        systemOverlayStyle: theme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         leading: const Icon(Icons.arrow_back),
         title: const Text(
           "ChatMate",
@@ -92,9 +95,13 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
               children: [
                 const SizedBox(height: 10),
 
-                const Text(
+                Text(
                   "Set up profile",
-                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    fontSize: 26,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black.withValues(alpha: 0.7),
+                  ),
                 ),
 
                 const SizedBox(height: 25),
@@ -105,7 +112,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   children: [
                     CircleAvatar(
                       radius: 60,
-                      backgroundColor: Colors.grey.shade300,
+                      backgroundColor: theme.colorScheme.secondary,
                       backgroundImage: selectedImage != null
                           ? FileImage(selectedImage!) // preview
                           : (imageUrl.isNotEmpty
@@ -130,10 +137,6 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                 const SizedBox(height: 30),
 
-                const Align(
-                  alignment: Alignment.centerLeft,
-                  child: Text("Full Name"),
-                ),
                 const SizedBox(height: 6),
 
                 TextField(
@@ -141,7 +144,7 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                   decoration: InputDecoration(
                     hintText: "Enter your name",
                     filled: true,
-                    fillColor: Colors.grey.shade200,
+                    fillColor: theme.colorScheme.secondary,
                     suffixIcon: const Icon(Icons.edit),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),

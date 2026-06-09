@@ -26,7 +26,10 @@ class _OtpScreenState extends State<OtpScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: theme.colorScheme.surface,
+        systemOverlayStyle: theme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
         elevation: 0,
         title: const Text("ChatMate"),
       ),
@@ -62,9 +65,9 @@ class _OtpScreenState extends State<OtpScreen> {
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Container(
-                padding: const EdgeInsets.all(24),
+                padding: EdgeInsets.all(24),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: theme.colorScheme.secondary,
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: Column(
@@ -72,11 +75,12 @@ class _OtpScreenState extends State<OtpScreen> {
                   children: [
                     const SizedBox(height: 20),
 
-                    const Text(
+                    Text(
                       "Verify it's you",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
 
@@ -84,16 +88,17 @@ class _OtpScreenState extends State<OtpScreen> {
 
                     Text(
                       "Code sent to ${widget.phoneNumber}",
-                      style: const TextStyle(color: Colors.grey),
+                      style: TextStyle(color: theme.colorScheme.onSurface),
                     ),
 
                     const SizedBox(height: 25),
 
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
+
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade200,
                         borderRadius: BorderRadius.circular(12),
+                        color: theme.colorScheme.surface,
                       ),
                       child: TextFormField(
                         controller: otpController,
@@ -103,12 +108,13 @@ class _OtpScreenState extends State<OtpScreen> {
                         inputFormatters: [
                           FilteringTextInputFormatter.digitsOnly,
                         ],
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 8,
+                          color: theme.colorScheme.onSecondary,
                         ),
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
                           counterText: "",
                           hintText: "------",

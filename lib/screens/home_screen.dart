@@ -2,6 +2,7 @@ import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chatmate/models/chat_model.dart';
 import 'contacts_screen.dart';
@@ -12,8 +13,6 @@ import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_event.dart';
 import 'package:chatmate/utils/date_formatter.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_state.dart';
-
-import 'package:chatmate/utils/date_formatter.dart';
 
 class HomeScreen extends StatefulWidget {
   final String currentUserId;
@@ -39,11 +38,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return PopScope(
       canPop: false,
       child: Scaffold(
         appBar: AppBar(
           title: const Text("ChatMate"),
+          backgroundColor: theme.colorScheme.surface,
+          systemOverlayStyle: theme.brightness == Brightness.dark
+              ? SystemUiOverlayStyle.light
+              : SystemUiOverlayStyle.dark,
           actions: [
             StreamBuilder<DocumentSnapshot>(
               stream: getUserData(widget.currentUserId),
@@ -125,15 +129,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       padding: const EdgeInsets.symmetric(vertical: 5),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        color: theme.colorScheme.secondary,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: ListTile(
                         leading: UserAvatar(userId: otherUserId),
-                        title: Text(otherUserName),
-                        subtitle: Text(chat.lastMessage),
+                        title: Text(
+                          otherUserName,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondary,
+                          ),
+                        ),
+                        subtitle: Text(
+                          chat.lastMessage,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondary,
+                          ),
+                        ),
                         trailing: Text(
                           DateFormatter.formatChatTime(chat.timestamp),
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondary,
+                          ),
                         ),
                         onTap: () {
                           Navigator.push(

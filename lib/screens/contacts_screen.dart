@@ -2,6 +2,7 @@ import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../models/user_model.dart';
 import '../repositories/user_repository.dart';
 import '../repositories/chat_repository.dart';
@@ -15,11 +16,18 @@ class ContactsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final userRepo = UserRepository();
     final chatRepo = ChatRepository();
 
     return Scaffold(
-      appBar: AppBar(title: const Text("All Contacts")),
+      appBar: AppBar(
+        title: const Text("All Contacts"),
+        backgroundColor: theme.colorScheme.surface,
+        systemOverlayStyle: theme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+      ),
 
       body: AppBackground(
         child: StreamBuilder<List<UserModel>>(
@@ -46,7 +54,7 @@ class ContactsScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 5),
 
                   decoration: BoxDecoration(
-                    color: Colors.grey.shade100, //grey background
+                    color: theme.colorScheme.secondary,
                     borderRadius: BorderRadius.circular(12),
                   ),
 
@@ -56,11 +64,7 @@ class ContactsScreen extends StatelessWidget {
 
                     title: Text(
                       user.name,
-                      style: const TextStyle(
-                        color: Colors.black, //  black text
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: theme.colorScheme.onSecondary),
                     ),
 
                     onTap: () {

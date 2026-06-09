@@ -4,6 +4,7 @@ import 'package:chatmate/blocs/auth/auth_state.dart';
 import 'package:chatmate/screens/otp_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -24,6 +25,14 @@ class _LoginScreenState extends State<LoginScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: theme.colorScheme.surface,
+        systemOverlayStyle: theme.brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        elevation: 0,
+        title: const Text("ChatMate"),
+      ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
           // Navigate when OTP sent
@@ -71,11 +80,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       const SizedBox(height: 10),
 
-                      const Text(
+                      Text(
                         'LOGIN',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.7,
+                          ),
                         ),
                       ),
 
@@ -121,12 +133,15 @@ class _LoginScreenState extends State<LoginScreen> {
                                         keyboardType: TextInputType.phone,
                                         maxLength: 10,
                                         textAlign: TextAlign.center,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w600,
+                                          color: theme.colorScheme.onSecondary,
                                         ),
-                                        decoration: const InputDecoration(
+                                        decoration: InputDecoration(
                                           border: InputBorder.none,
+                                          fillColor:
+                                              theme.colorScheme.secondary,
                                           counterText: "",
                                           hintText: "Enter number",
                                         ),
@@ -180,8 +195,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                               }
                                             },
                                       child: state is AuthLoading
-                                          ? const CircularProgressIndicator(
-                                              color: Colors.white,
+                                          ? CircularProgressIndicator(
+                                              color:
+                                                  theme.colorScheme.onSecondary,
                                             )
                                           : const Text(
                                               'Send OTP',
