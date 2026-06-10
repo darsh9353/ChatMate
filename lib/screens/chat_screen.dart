@@ -32,12 +32,36 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
-
   @override
   void initState() {
     super.initState();
 
     context.read<ChatBloc>().add(LoadMessagesEvent(widget.chatId));
+
+    // MARK AS SEEN
+    markMessagesAsSeen();
+  }
+
+  Future<void> markMessagesAsSeen() async {
+    final messagesRef = FirebaseFirestore.instance
+        .collection('chats')
+        .doc(widget.chatId)
+        .collection('messages');
+
+    final unseenMessages = await messagesRef
+        .where('receiverId', isEqualTo: widget.currentUserId)
+        .where('isSeen', isEqualTo: false)
+        .get();
+
+    for (var doc in unseenMessages.docs) {
+      doc.reference.update({'isSeen': true});
+    }
+
+    // ADD THIS (updates HomeScreen tick)
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(widget.chatId)
+        .update({'lastMessageSeen': true});
   }
 
   Future<void> ensureChatExists(String lastMessage) async {
@@ -85,7 +109,19 @@ class _ChatScreenState extends State<ChatScreen> {
       isSeen: false,
     );
 
+    //  SEND MESSAGE (existing)
     bloc.add(SendMessageEvent(chatId: widget.chatId, message: message));
+
+    await FirebaseFirestore.instance
+        .collection('chats')
+        .doc(widget.chatId)
+        .update({
+          'lastMessage': text,
+          'timestamp': Timestamp.now(),
+
+          'lastMessageSeen': false,
+          'lastMessageSenderId': widget.currentUserId,
+        });
 
     messageController.clear();
 
@@ -164,6 +200,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                   : theme.colorScheme.secondary,
                               borderRadius: BorderRadius.circular(12),
                             ),
+
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
@@ -176,14 +213,41 @@ class _ChatScreenState extends State<ChatScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
-                                Text(
-                                  DateFormatter.formatChatTime(msg.timestamp),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: isMe
-                                        ? theme.colorScheme.onPrimary
-                                        : theme.colorScheme.onSecondary,
-                                  ),
+
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      DateFormatter.formatChatTime(
+                                        msg.timestamp,
+                                      ),
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isMe
+                                            ? theme.colorScheme.onPrimary
+                                            : theme.colorScheme.onSecondary,
+                                      ),
+                                    ),
+
+                                    // SHOW TICK ONLY FOR SENDER
+                                    if (isMe) ...[
+                                      const SizedBox(width: 5),
+                                      Icon(
+                                        Icons.done_all, // double tick
+                                        size: 16,
+                                        color: msg.isSeen
+                                            ? const Color.fromARGB(
+                                                255,
+                                                4,
+                                                20,
+                                                255,
+                                              ) // ✅ SEEN
+                                            : theme
+                                                  .colorScheme
+                                                  .onPrimary, //  NOT SEEN
+                                      ),
+                                    ],
+                                  ],
                                 ),
                               ],
                             ),

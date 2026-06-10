@@ -7,12 +7,20 @@ class ChatModel {
   final String lastMessage;
   final DateTime timestamp;
 
+  // ✅ ADD THESE
+  final bool lastMessageSeen;
+  final String lastMessageSenderId;
+
   ChatModel({
     required this.chatId,
     required this.participants,
     required this.participantNames,
     required this.lastMessage,
     required this.timestamp,
+
+    // ✅ NEW
+    required this.lastMessageSeen,
+    required this.lastMessageSenderId,
   });
 
   DateTime get lastMessageTime => timestamp;
@@ -24,6 +32,10 @@ class ChatModel {
       'participantNames': participantNames,
       'lastMessage': lastMessage,
       'timestamp': Timestamp.fromDate(timestamp),
+
+      // ✅ ADD THIS
+      'lastMessageSeen': lastMessageSeen,
+      'lastMessageSenderId': lastMessageSenderId,
     };
   }
 
@@ -36,6 +48,10 @@ class ChatModel {
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] as Timestamp).toDate()
           : DateTime.now(),
+
+      // ✅ ADD THIS
+      lastMessageSeen: map['lastMessageSeen'] ?? false,
+      lastMessageSenderId: map['lastMessageSenderId'] ?? '',
     );
   }
 }

@@ -188,11 +188,38 @@ class _HomeScreenState extends State<HomeScreen> {
                                 color: theme.colorScheme.onSecondary,
                               ),
                             ),
-                            subtitle: Text(
-                              chat.lastMessage,
-                              style: TextStyle(
-                                color: theme.colorScheme.onSecondary,
-                              ),
+                            subtitle: Row(
+                              children: [
+                                //  SHOW TICK ONLY IF CURRENT USER SENT LAST MESSAGE
+                                if (chat.lastMessageSenderId ==
+                                    widget.currentUserId) ...[
+                                  Icon(
+                                    Icons.done_all,
+                                    size: 16,
+                                    color: chat.lastMessageSeen
+                                        ? const Color.fromARGB(
+                                            255,
+                                            8,
+                                            26,
+                                            187,
+                                          ) //  SEEN
+                                        : theme
+                                              .colorScheme
+                                              .onSecondary, // NOT SEEN
+                                  ),
+                                  const SizedBox(width: 5),
+                                ],
+
+                                Expanded(
+                                  child: Text(
+                                    chat.lastMessage,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: theme.colorScheme.onSecondary,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                             trailing: Text(
                               DateFormatter.formatChatTime(chat.timestamp),
