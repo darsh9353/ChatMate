@@ -18,6 +18,7 @@ class MainBottomNav extends StatelessWidget {
     return BottomNavigationBar(
       currentIndex: currentIndex,
       selectedItemColor: theme.colorScheme.primary,
+      backgroundColor: theme.colorScheme.secondary,
       onTap: (index) {
         if (index == currentIndex) return;
 
@@ -28,7 +29,7 @@ class MainBottomNav extends StatelessWidget {
         } else if (index == 1) {
           screen = ContactsScreen(currentUserId: user!.uid);
         } else {
-          screen = const SettingsScreen();
+          screen = SettingsScreen();
         }
 
         Navigator.pushReplacement(

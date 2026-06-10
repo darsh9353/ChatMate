@@ -1,4 +1,5 @@
 import 'package:chatmate/screens/chat_screen.dart';
+import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
@@ -69,10 +70,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                   : null,
               filled: true,
               fillColor: theme.colorScheme.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
+              border: OutlineInputBorder(borderSide: BorderSide.none),
             ),
           ),
 
