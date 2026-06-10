@@ -28,7 +28,7 @@ class MainBottomNav extends StatelessWidget {
         } else if (index == 1) {
           screen = ContactsScreen(currentUserId: user!.uid);
         } else {
-          screen = SettingsScreen(name: '', imagePath: '');
+          screen = const SettingsScreen();
         }
 
         Navigator.pushReplacement(

@@ -1,5 +1,4 @@
 import 'package:chatmate/screens/chat_screen.dart';
-import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +6,6 @@ import 'package:flutter/services.dart';
 import '../models/user_model.dart';
 import '../repositories/user_repository.dart';
 import '../repositories/chat_repository.dart';
-import '../models/chat_model.dart';
 import 'package:chatmate/utils/chat_util.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -38,143 +36,133 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("All Contacts"),
-        backgroundColor: theme.colorScheme.surface,
+        backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
       ),
 
-      body: AppBackground(
-        child: Column(
-          children: [
-            /// SEARCH BAR
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: TextField(
-                controller: _searchController,
-                onChanged: (value) {
-                  setState(() {
-                    searchQuery = value.toLowerCase();
-                  });
-                },
-                keyboardType: TextInputType.text,
-                decoration: InputDecoration(
-                  hintText: "Discover People",
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            setState(() {
-                              searchQuery = "";
-                            });
-                          },
-                        )
-                      : null,
-                  filled: true,
-                  fillColor: theme.colorScheme.secondary,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
+      body: Column(
+        children: [
+          /// SEARCH BAR
+          TextField(
+            controller: _searchController,
+            onChanged: (value) {
+              setState(() {
+                searchQuery = value.toLowerCase();
+              });
+            },
+            keyboardType: TextInputType.text,
+            decoration: InputDecoration(
+              hintText: "Discover People",
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          searchQuery = "";
+                        });
+                      },
+                    )
+                  : null,
+              filled: true,
+              fillColor: theme.colorScheme.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
               ),
             ),
+          ),
 
-            ///  USER LIST
-            Expanded(
-              child: StreamBuilder<List<UserModel>>(
-                stream: userRepo.getUsers(),
-                builder: (context, snapshot) {
-                  if (!snapshot.hasData) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
+          ///  USER LIST
+          Expanded(
+            child: StreamBuilder<List<UserModel>>(
+              stream: userRepo.getUsers(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-                  /// Remove current user
-                  final users = snapshot.data!
-                      .where((user) => user.uid != widget.currentUserId)
-                      .toList();
+                /// Remove current user
+                final users = snapshot.data!
+                    .where((user) => user.uid != widget.currentUserId)
+                    .toList();
 
-                  ///  FILTER LOGIC (NAME + PHONE)
-                  final filteredUsers = users.where((user) {
-                    final name = user.name.toLowerCase();
-                    final phone = user.phoneNumber.toLowerCase();
+                ///  FILTER LOGIC (NAME + PHONE)
+                final filteredUsers = users.where((user) {
+                  final name = user.name.toLowerCase();
+                  final phone = user.phoneNumber.toLowerCase();
 
-                    return name.contains(searchQuery) ||
-                        phone.contains(searchQuery);
-                  }).toList();
+                  return name.contains(searchQuery) ||
+                      phone.contains(searchQuery);
+                }).toList();
 
-                  if (filteredUsers.isEmpty) {
-                    return const Center(child: Text("No users found"));
-                  }
+                if (filteredUsers.isEmpty) {
+                  return const Center(child: Text("No users found"));
+                }
 
-                  return ListView.builder(
-                    itemCount: filteredUsers.length,
-                    itemBuilder: (context, index) {
-                      final user = filteredUsers[index];
+                return ListView.builder(
+                  itemCount: filteredUsers.length,
+                  itemBuilder: (context, index) {
+                    final user = filteredUsers[index];
 
-                      return Container(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
+                    return Container(
+                      padding: const EdgeInsets.symmetric(vertical: 5),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.secondary,
+                      ),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
                         ),
-                        padding: const EdgeInsets.symmetric(vertical: 5),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.secondary,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 12,
+                        leading: UserAvatar(userId: user.uid),
+
+                        title: Text(
+                          user.name,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondary,
                           ),
-                          leading: UserAvatar(userId: user.uid),
+                        ),
 
-                          title: Text(
-                            user.name,
-                            style: TextStyle(
-                              color: theme.colorScheme.onSecondary,
+                        subtitle: Text(
+                          user.phoneNumber,
+                          style: TextStyle(
+                            color: theme.colorScheme.onSecondary.withOpacity(
+                              0.7,
                             ),
                           ),
+                        ),
 
-                          subtitle: Text(
-                            user.phoneNumber,
-                            style: TextStyle(
-                              color: theme.colorScheme.onSecondary.withOpacity(
-                                0.7,
+                        onTap: () {
+                          final chatService = ChatService();
+
+                          final chatId = chatService.generateChatId(
+                            widget.currentUserId,
+                            user.uid,
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ChatScreen(
+                                currentUserId: widget.currentUserId,
+                                chatId: chatId,
+                                otherUserId: user.uid,
+                                otherUserName: user.name,
                               ),
                             ),
-                          ),
-
-                          onTap: () {
-                            final chatService = ChatService();
-
-                            final chatId = chatService.generateChatId(
-                              widget.currentUserId,
-                              user.uid,
-                            );
-
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => ChatScreen(
-                                  currentUserId: widget.currentUserId,
-                                  chatId: chatId,
-                                  otherUserId: user.uid,
-                                  otherUserName: user.name,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      );
-                    },
-                  );
-                },
-              ),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
       ),
       bottomNavigationBar: const MainBottomNav(currentIndex: 1),
     );

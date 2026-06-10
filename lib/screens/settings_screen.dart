@@ -4,43 +4,33 @@ import 'package:chatmate/blocs/auth/auth_state.dart';
 import 'package:chatmate/blocs/settings/settings_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_event.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
+import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/login_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/bottom_navbar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class SettingsScreen extends StatefulWidget {
-  final String name;
-  final String imagePath;
-
-  const SettingsScreen({
-    super.key,
-    required this.name,
-    required this.imagePath,
-  });
+  const SettingsScreen({super.key});
 
   @override
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  late String name;
-  late String imagePath;
-
-  @override
-  void initState() {
-    super.initState();
-    name = widget.name;
-    imagePath = widget.imagePath;
+  Stream<DocumentSnapshot> getUserData(String uid) {
+    return FirebaseFirestore.instance.collection('users').doc(uid).snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final width = MediaQuery.of(context).size.width;
+    final user = context.read<AuthRepository>().getCurrentUser();
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
@@ -60,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       },
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: theme.colorScheme.surface,
+          backgroundColor: theme.colorScheme.secondary,
           systemOverlayStyle: theme.brightness == Brightness.dark
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark,
@@ -76,38 +66,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               const SizedBox(height: 20),
 
-              //  PROFILE CARD
-              Container(
-                width: width * 0.5,
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 55,
-                      backgroundColor: theme.colorScheme.secondary,
-                      backgroundImage: imagePath.isNotEmpty
-                          ? NetworkImage(imagePath)
-                          : null,
-                      child: imagePath.isEmpty
-                          ? const Icon(Icons.person, size: 40)
-                          : null,
-                    ),
-                    const SizedBox(height: 15),
-                    Text(
-                      name,
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              StreamBuilder<DocumentSnapshot>(
+                stream: getUserData(user!.uid),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const CircularProgressIndicator();
+                  }
 
+                  final data = snapshot.data!.data() as Map<String, dynamic>;
+                  final name = data['name'] ?? "User";
+                  final imagePath = data['profileImage'] ?? "";
+
+                  return Container(
+                    width: width * 0.5,
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      children: [
+                        CircleAvatar(
+                          radius: 55,
+                          backgroundColor: theme.colorScheme.secondary,
+                          backgroundImage: imagePath.isNotEmpty
+                              ? NetworkImage(imagePath)
+                              : null,
+                          child: imagePath.isEmpty
+                              ? const Icon(Icons.person, size: 40)
+                              : null,
+                        ),
+                        const SizedBox(height: 15),
+                        Text(
+                          name,
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
               const SizedBox(height: 20),
 
               // THEME TOGGLE (NEW)
@@ -146,19 +147,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     backgroundColor: theme.colorScheme.surface,
                   ),
                   onPressed: () async {
-                    final result = await Navigator.push(
+                    await Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (_) => const ProfileSetupScreen(isEdit: true),
                       ),
                     );
-
-                    if (result != null) {
-                      setState(() {
-                        name = result['name'];
-                        imagePath = result['image'];
-                      });
-                    }
                   },
                   child: const Text("Edit Profile"),
                 ),
