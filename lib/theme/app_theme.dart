@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 class AppTheme {
-  // 🌞 LIGHT THEME
+  //  LIGHT THEME
   static final ThemeData lightTheme = ThemeData(
     brightness: Brightness.light,
     scaffoldBackgroundColor: const Color(0xFFF5F7FB),
@@ -33,7 +32,7 @@ class AppTheme {
     dividerColor: Color(0xFFE0E0E0),
   );
 
-  // 🌙 DARK THEME
+  //  DARK THEME
   static final ThemeData darkTheme = ThemeData(
     brightness: Brightness.dark,
     scaffoldBackgroundColor: const Color(0xFF0F172A),
