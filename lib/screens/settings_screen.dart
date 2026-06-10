@@ -4,12 +4,10 @@ import 'package:chatmate/blocs/auth/auth_state.dart';
 import 'package:chatmate/blocs/settings/settings_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_event.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
-import 'package:chatmate/repositories/auth_repository.dart';
-import 'package:chatmate/screens/contacts_screen.dart';
-import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/screens/login_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -187,40 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
 
         //  BOTTOM NAV
-        bottomNavigationBar: BottomNavigationBar(
-          selectedItemColor: theme.colorScheme.primary,
-          currentIndex: 2,
-          onTap: (index) {
-            final user = context.read<AuthRepository>().getCurrentUser();
-
-            if (index == 0) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => HomeScreen(currentUserId: user!.uid),
-                ),
-              );
-            } else if (index == 1) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ContactsScreen(currentUserId: user!.uid),
-                ),
-              );
-            }
-          },
-          items: [
-            BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chats"),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.contacts),
-              label: "Contacts",
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: "Settings",
-            ),
-          ],
-        ),
+        bottomNavigationBar: const MainBottomNav(currentIndex: 2),
       ),
     );
   }

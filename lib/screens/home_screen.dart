@@ -1,6 +1,7 @@
 import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -85,21 +86,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ? const Icon(Icons.person)
                             : null,
                       ),
-                      const SizedBox(width: 10),
-                      IconButton(
-                        icon: const Icon(Icons.settings),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => SettingsScreen(
-                                name: data['name'],
-                                imagePath: imagePath,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
                     ],
                   ),
                 );
@@ -145,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
 
-              /// 💬 CHAT LIST
+              ///  CHAT LIST
               Expanded(
                 child: BlocBuilder<ChatListBloc, ChatListState>(
                   builder: (context, state) {
@@ -253,6 +239,8 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           child: const Icon(Icons.add),
         ),
+
+        bottomNavigationBar: const MainBottomNav(currentIndex: 0),
       ),
     );
   }
