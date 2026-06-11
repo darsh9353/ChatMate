@@ -12,6 +12,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_event.dart';
+import 'package:chatmate/services/notification_service.dart';
 import 'package:chatmate/utils/date_formatter.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_state.dart';
 
@@ -32,6 +33,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     context.read<ChatListBloc>().add(LoadUserChatsEvent(widget.currentUserId));
+    NotificationService.instance.saveTokenForUser(widget.currentUserId);
+    NotificationService.instance.handlePendingNavigation(widget.currentUserId);
   }
 
   Stream<DocumentSnapshot> getUserData(String uid) {

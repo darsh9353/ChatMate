@@ -1,6 +1,7 @@
 import 'package:chatmate/blocs/chat/chat_bloc.dart';
 import 'package:chatmate/blocs/chat/chat_event.dart';
 import 'package:chatmate/blocs/chat/chat_state.dart';
+import 'package:chatmate/services/fcm_sender_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
+  final FcmSenderService _fcmSender = FcmSenderService();
   @override
   void initState() {
     super.initState();
@@ -124,6 +126,20 @@ class _ChatScreenState extends State<ChatScreen> {
         });
 
     messageController.clear();
+
+    final currentUserDoc = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(widget.currentUserId)
+        .get();
+    final senderName = currentUserDoc.data()?['name'] as String? ?? 'Someone';
+
+    await _fcmSender.sendChatNotification(
+      receiverId: widget.otherUserId,
+      senderId: widget.currentUserId,
+      senderName: senderName,
+      chatId: widget.chatId,
+      message: text,
+    );
 
     // smooth auto scroll
     Future.delayed(const Duration(milliseconds: 100), () {

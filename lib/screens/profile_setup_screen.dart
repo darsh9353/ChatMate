@@ -3,6 +3,7 @@ import 'package:chatmate/models/user_model.dart';
 import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/services/image_service.dart';
+import 'package:chatmate/services/notification_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -220,6 +221,11 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                             {'name': name, 'image': imageUrl},
                           ); // go back to SettingsScreen (but data loading slowly)
                         } else {
+                          await NotificationService.instance
+                              .saveTokenForUser(user.uid);
+
+                          if (!context.mounted) return;
+
                           //  Coming from Login flow
                           Navigator.pushReplacement(
                             context,

@@ -39,6 +39,9 @@ app.*.symbols
 # Obfuscation related
 app.*.map.json
 
+# FCM service account (never commit credentials)
+assets/fcm_service_account.json
+
 # Android Studio will place build artifacts here
 /android/app/debug
 /android/app/profile
