@@ -29,11 +29,14 @@ class NotificationService {
   }
 
   Future<void> _setupLocalNotifications() async {
-    const androidSettings = AndroidInitializationSettings('@mipmap/ic_launcher');
+    const androidSettings = AndroidInitializationSettings(
+      '@mipmap/ic_launcher',
+    );
+
     const initSettings = InitializationSettings(android: androidSettings);
 
     await _localNotifications.initialize(
-      settings: initSettings,
+      initSettings,
       onDidReceiveNotificationResponse: _onLocalNotificationTapped,
     );
 
@@ -59,38 +62,44 @@ class NotificationService {
         .resolvePlatformSpecificImplementation<
           AndroidFlutterLocalNotificationsPlugin
         >();
+
     await androidPlugin?.requestNotificationsPermission();
   }
 
   void _setupForegroundListener() {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      final notification = message.notification;
       final data = message.data;
+
       if (data['type'] != 'chat_message') return;
 
       final title =
-          notification?.title ?? data['senderName']?.toString() ?? 'New message';
-      final body =
-          notification?.body ?? data['message']?.toString() ?? 'New message';
+          message.notification?.title ??
+          data['senderName']?.toString() ??
+          'New message';
 
-      _showLocalNotification(
-        title: title,
-        body: body,
-        data: data,
-      );
+      final body =
+          message.notification?.body ??
+          data['message']?.toString() ??
+          'New message';
+
+      _showLocalNotification(title: title, body: body, data: data);
     });
   }
 
   void _setupNotificationTapListener() {
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessageOpenedApp.listen((message) {
       _handleNotificationData(message.data);
     });
   }
 
   Future<void> _captureInitialMessage() async {
     final message = await _messaging.getInitialMessage();
+
     if (message != null) {
-      _pendingNotificationData = _normalizeData(message.data);
+      final normalized = _normalizeData(message.data);
+      if (normalized != null) {
+        _pendingNotificationData = normalized;
+      }
     }
   }
 
@@ -107,10 +116,9 @@ class NotificationService {
     final fcmToken = token ?? await _messaging.getToken();
     if (fcmToken == null || fcmToken.isEmpty) return;
 
-    await FirebaseFirestore.instance.collection('users').doc(uid).set(
-      {'fcmToken': fcmToken},
-      SetOptions(merge: true),
-    );
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      'fcmToken': fcmToken,
+    }, SetOptions(merge: true));
   }
 
   Future<void> handlePendingNavigation(String currentUserId) async {
@@ -125,7 +133,13 @@ class NotificationService {
     final payload = response.payload;
     if (payload == null || payload.isEmpty) return;
 
-    final data = Map<String, String>.from(jsonDecode(payload) as Map);
+    final decoded = jsonDecode(payload);
+
+    if (decoded is! Map) return;
+
+    final data = _normalizeData(Map<String, dynamic>.from(decoded));
+    if (data == null) return;
+
     _handleNotificationData(data);
   }
 
@@ -134,6 +148,7 @@ class NotificationService {
     if (data == null) return;
 
     final currentUserId = FirebaseAuth.instance.currentUser?.uid;
+
     if (currentUserId == null) {
       _pendingNotificationData = data;
       return;
@@ -187,10 +202,10 @@ class NotificationService {
     );
 
     await _localNotifications.show(
-      id: DateTime.now().millisecondsSinceEpoch ~/ 1000,
-      title: title,
-      body: body,
-      notificationDetails: const NotificationDetails(android: androidDetails),
+      DateTime.now().millisecondsSinceEpoch ~/ 1000,
+      title,
+      body,
+      const NotificationDetails(android: androidDetails),
       payload: jsonEncode(data),
     );
   }
