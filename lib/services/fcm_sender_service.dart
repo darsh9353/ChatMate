@@ -7,10 +7,8 @@ import 'package:flutter/services.dart';
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
 
-/// Sends push notifications from the sender's device (no Cloud Functions).
-///
-/// Uses FCM HTTP v1 with a Firebase service account JSON file. This is fine for
-/// learning projects; never ship service account credentials in production.
+/// Sends push notifications from the sender's device
+/// Uses FCM HTTP v1 with a Firebase service account JSON file.
 class FcmSenderService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -25,8 +23,10 @@ class FcmSenderService {
   }) async {
     if (receiverId == senderId) return;
 
-    final receiverDoc =
-        await _firestore.collection('users').doc(receiverId).get();
+    final receiverDoc = await _firestore
+        .collection('users')
+        .doc(receiverId)
+        .get();
     final token = receiverDoc.data()?['fcmToken'] as String?;
     if (token == null || token.isEmpty) {
       debugPrint('FCM: receiver has no token ($receiverId)');
@@ -76,12 +76,10 @@ class FcmSenderService {
         body: jsonEncode({
           'message': {
             'token': token,
-            'notification': {'title': title, 'body': body},
+
             'data': data,
-            'android': {
-              'priority': 'HIGH',
-              'notification': {'channel_id': 'chat_messages'},
-            },
+
+            'android': {'priority': 'HIGH'},
           },
         }),
       );
@@ -102,15 +100,16 @@ class FcmSenderService {
     if (_authClient != null) return _authClient;
 
     try {
-      final jsonStr =
-          await rootBundle.loadString(FcmConfig.serviceAccountAssetPath);
-      final credentials =
-          ServiceAccountCredentials.fromJson(jsonDecode(jsonStr) as Map<String, dynamic>);
-
-      _authClient = await clientViaServiceAccount(
-        credentials,
-        ['https://www.googleapis.com/auth/firebase.messaging'],
+      final jsonStr = await rootBundle.loadString(
+        FcmConfig.serviceAccountAssetPath,
       );
+      final credentials = ServiceAccountCredentials.fromJson(
+        jsonDecode(jsonStr) as Map<String, dynamic>,
+      );
+
+      _authClient = await clientViaServiceAccount(credentials, [
+        'https://www.googleapis.com/auth/firebase.messaging',
+      ]);
       return _authClient;
     } catch (e) {
       debugPrint(
@@ -147,7 +146,9 @@ class FcmSenderService {
       );
 
       if (response.statusCode < 200 || response.statusCode >= 300) {
-        debugPrint('FCM legacy error (${response.statusCode}): ${response.body}');
+        debugPrint(
+          'FCM legacy error (${response.statusCode}): ${response.body}',
+        );
       }
     } catch (e) {
       debugPrint('FCM legacy send failed: $e');
