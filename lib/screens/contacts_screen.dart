@@ -162,7 +162,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: const MainBottomNav(currentIndex: 1),
     );
   }
 }

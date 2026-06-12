@@ -3,6 +3,7 @@ import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
 import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/screens/login_screen.dart';
+import 'package:chatmate/screens/main_screen.dart';
 import 'package:chatmate/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -45,9 +46,7 @@ class SplashScreenState extends State<SplashScreen> {
 
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(
-                builder: (_) => HomeScreen(currentUserId: user.uid),
-              ),
+              MaterialPageRoute(builder: (_) => MainScreen()),
             );
           }
 

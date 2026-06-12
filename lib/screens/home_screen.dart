@@ -273,7 +273,6 @@ class _HomeScreenState extends State<HomeScreen> {
           child: const Icon(Icons.add),
         ),
 
-        bottomNavigationBar: const MainBottomNav(currentIndex: 0),
       ),
     );
   }
