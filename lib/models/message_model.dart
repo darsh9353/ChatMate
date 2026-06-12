@@ -8,6 +8,10 @@ class MessageModel {
   final DateTime timestamp;
   final bool isSeen;
 
+  // NEW FIELDS
+  final List<String> deletedFor; // userIds
+  final Map<String, String> reactions; // userId : emoji
+
   MessageModel({
     required this.messageId,
     required this.senderId,
@@ -15,11 +19,11 @@ class MessageModel {
     required this.message,
     required this.timestamp,
     required this.isSeen,
+    this.deletedFor = const [],
+    this.reactions = const {},
   });
 
   Map<String, dynamic> toMap() {
-    //Object → Map (send to Firebase)
-
     return {
       'messageId': messageId,
       'senderId': senderId,
@@ -27,21 +31,24 @@ class MessageModel {
       'message': message,
       'timestamp': Timestamp.fromDate(timestamp),
       'isSeen': isSeen,
+      'deletedFor': deletedFor,
+      'reactions': reactions,
     };
   }
 
   factory MessageModel.fromMap(Map<String, dynamic> map) {
-    //Map → Object (get from Firebase)
-
     return MessageModel(
-      messageId: map['messageId'] as String? ?? '',
-      senderId: map['senderId'] as String? ?? '',
-      receiverId: map['receiverId'] as String? ?? '',
-      message: map['message'] as String? ?? '',
-      isSeen: map['isSeen'] as bool? ?? false,
+      messageId: map['messageId'] ?? '',
+      senderId: map['senderId'] ?? '',
+      receiverId: map['receiverId'] ?? '',
+      message: map['message'] ?? '',
+      isSeen: map['isSeen'] ?? false,
       timestamp: map['timestamp'] != null
           ? (map['timestamp'] as Timestamp).toDate()
           : DateTime.now(),
+
+      deletedFor: List<String>.from(map['deletedFor'] ?? []),
+      reactions: Map<String, String>.from(map['reactions'] ?? {}),
     );
   }
 }

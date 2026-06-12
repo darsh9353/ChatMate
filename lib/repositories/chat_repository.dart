@@ -32,4 +32,30 @@ class ChatRepository {
       }).toList();
     });
   }
+
+  Future<void> deleteForMe(String chatId, String messageId, String userId) {
+    return _chatService.deleteForMe(
+      chatId: chatId,
+      messageId: messageId,
+      userId: userId,
+    );
+  }
+
+  Future<void> deleteForEveryone(String chatId, String messageId) {
+    return _chatService.deleteForEveryone(chatId: chatId, messageId: messageId);
+  }
+
+  Future<void> addReaction(
+    String chatId,
+    String messageId,
+    String userId,
+    String emoji,
+  ) {
+    return _chatService.addReaction(
+      chatId: chatId,
+      messageId: messageId,
+      userId: userId,
+      emoji: emoji,
+    );
+  }
 }

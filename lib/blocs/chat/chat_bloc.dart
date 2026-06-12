@@ -30,5 +30,26 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         onError: (_, __) => ChatError("Failed to load messages"),
       );
     });
+
+    on<DeleteForMeEvent>((event, emit) async {
+      await chatRepository.deleteForMe(
+        event.chatId,
+        event.messageId,
+        event.userId,
+      );
+    });
+
+    on<DeleteForEveryoneEvent>((event, emit) async {
+      await chatRepository.deleteForEveryone(event.chatId, event.messageId);
+    });
+
+    on<AddReactionEvent>((event, emit) async {
+      await chatRepository.addReaction(
+        event.chatId,
+        event.messageId,
+        event.userId,
+        event.emoji,
+      );
+    });
   }
 }
