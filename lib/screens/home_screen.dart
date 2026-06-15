@@ -3,6 +3,7 @@ import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/bottom_navbar.dart';
+import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -188,7 +189,29 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: theme.colorScheme.secondary,
                           ),
                           child: ListTile(
-                            leading: UserAvatar(userId: otherUserId),
+                            leading: GestureDetector(
+                              onTap: () async {
+                                final doc = await FirebaseFirestore.instance
+                                    .collection('users')
+                                    .doc(otherUserId)
+                                    .get();
+
+                                final data = doc.data();
+                                final imageUrl = data?['profileImage'] ?? '';
+
+                                if (imageUrl.isNotEmpty &&
+                                    imageUrl.startsWith('http')) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          ProfileImageView(imageUrl: imageUrl),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: UserAvatar(userId: otherUserId),
+                            ),
                             title: Text(
                               otherUserName,
                               style: TextStyle(
