@@ -1,3 +1,4 @@
+import 'package:chatmate/repositories/chat_repository.dart';
 import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
@@ -145,7 +146,10 @@ class _HomeScreenState extends State<HomeScreen> {
               child: BlocBuilder<ChatListBloc, ChatListState>(
                 builder: (context, state) {
                   if (state is ChatListLoaded) {
-                    final chats = state.chats;
+                    final chats = state.chats.where((chat) {
+                      final hiddenFor = (chat as dynamic).hiddenFor ?? [];
+                      return !hiddenFor.contains(widget.currentUserId);
+                    }).toList();
 
                     ///  FILTER LOGIC
                     final filteredChats = chats.where((chat) {
@@ -243,6 +247,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             },
+                            onLongPress: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text("Delete Chat"),
+                                    content: const Text(
+                                      "Do you want to delete this chat?",
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context); // CANCEL
+                                        },
+                                        child: const Text("Cancel"),
+                                      ),
+                                      TextButton(
+                                        onPressed: () async {
+                                          Navigator.pop(context);
+
+                                          context.read<ChatListBloc>().add(
+                                            DeleteChatForMeEvent(
+                                              chat.chatId,
+                                              widget.currentUserId,
+                                            ),
+                                          );
+                                        },
+                                        child: const Text("Delete"),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                           ),
                         );
                       },
@@ -272,7 +310,6 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           child: const Icon(Icons.add),
         ),
-
       ),
     );
   }

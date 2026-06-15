@@ -10,6 +10,7 @@ class ChatModel {
   //ADD THESE
   final bool lastMessageSeen;
   final String lastMessageSenderId;
+  final List<String> hiddenFor;
 
   ChatModel({
     required this.chatId,
@@ -17,6 +18,7 @@ class ChatModel {
     required this.participantNames,
     required this.lastMessage,
     required this.timestamp,
+    required this.hiddenFor,
 
     // NEW
     required this.lastMessageSeen,
@@ -36,6 +38,7 @@ class ChatModel {
       // ADD THIS
       'lastMessageSeen': lastMessageSeen,
       'lastMessageSenderId': lastMessageSenderId,
+      'hiddenFor': hiddenFor,
     };
   }
 
@@ -52,6 +55,7 @@ class ChatModel {
       // ADD THIS
       lastMessageSeen: map['lastMessageSeen'] ?? false,
       lastMessageSenderId: map['lastMessageSenderId'] ?? '',
+      hiddenFor: List<String>.from(map['hiddenFor'] ?? []),
     );
   }
 }

@@ -58,4 +58,11 @@ class ChatRepository {
       emoji: emoji,
     );
   }
+
+  Future<void> deleteChatForMe({
+    required String chatId,
+    required String userId,
+  }) {
+    return _chatService.deleteChatForMe(chatId: chatId, userId: userId);
+  }
 }
