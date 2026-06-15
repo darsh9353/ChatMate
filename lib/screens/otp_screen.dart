@@ -2,6 +2,7 @@ import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
 import 'package:chatmate/screens/home_screen.dart';
+import 'package:chatmate/screens/main_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/services/notification_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
@@ -40,11 +41,10 @@ class _OtpScreenState extends State<OtpScreen> {
           if (state is ExistingUserState) {
             NotificationService.instance.saveTokenForUser(state.userId);
 
-            Navigator.pushReplacement(
+            Navigator.pushAndRemoveUntil(
               context,
-              MaterialPageRoute(
-                builder: (_) => HomeScreen(currentUserId: state.userId),
-              ),
+              MaterialPageRoute(builder: (_) => MainScreen()),
+              (route) => false,
             );
           }
 
