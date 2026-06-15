@@ -3,12 +3,12 @@ import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:chatmate/firebase_messaging_background.dart';
 import 'package:chatmate/services/navigation_service.dart';
 import 'package:chatmate/services/notification_service.dart';
+import 'package:chatmate/widgets/app_root.dart';
 import 'package:flutter/material.dart';
 import 'package:chatmate/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:chatmate/screens/splash_screen.dart';
 
 // Repositories
 import 'package:chatmate/repositories/auth_repository.dart';
@@ -64,7 +64,7 @@ class ChatMateApp extends StatelessWidget {
               theme: AppTheme.lightTheme,
               darkTheme: AppTheme.darkTheme,
               themeMode: settingsState.themeMode,
-              home: const SplashScreen(),
+              home: const AppRoot(),
             );
           },
         ),
