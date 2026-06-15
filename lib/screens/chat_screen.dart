@@ -145,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
     Future.delayed(const Duration(milliseconds: 100), () {
       if (scrollController.hasClients) {
         scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
+          0, // bottom in reverse mode
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
@@ -186,6 +186,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (context, state) {
                   if (state is ChatLoaded) {
                     final messages = state.messages;
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (scrollController.hasClients) {
+                        scrollController.jumpTo(0); //  bottom
+                      }
+                    });
 
                     if (messages.isEmpty) {
                       return const Center(child: Text("Say Hi 👋"));
@@ -193,11 +198,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
                     return ListView.builder(
                       controller: scrollController,
+                      reverse: true,
                       padding: const EdgeInsets.all(10),
                       itemCount: messages.length,
-
                       itemBuilder: (context, index) {
-                        final msg = messages[index];
+                        final msg =
+                            messages[messages.length -
+                                1 -
+                                index]; //  reverse data
                         final isMe = msg.senderId == widget.currentUserId;
 
                         // HIDE MESSAGE (DELETE FOR ME)
