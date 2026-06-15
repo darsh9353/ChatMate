@@ -1,14 +1,9 @@
-import 'package:chatmate/repositories/chat_repository.dart';
 import 'package:chatmate/screens/chat_screen.dart';
-import 'package:chatmate/screens/settings_screen.dart';
-import 'package:chatmate/widgets/app_background.dart';
-import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:chatmate/models/chat_model.dart';
-import 'contacts_screen.dart';
+
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -319,19 +314,6 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ],
-        ),
-
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>
-                    ContactsScreen(currentUserId: widget.currentUserId),
-              ),
-            );
-          },
-          child: const Icon(Icons.add),
         ),
       ),
     );

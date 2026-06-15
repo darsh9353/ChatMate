@@ -15,7 +15,7 @@ class UserAvatar extends StatelessWidget {
           .doc(userId)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+        if (!snapshot.hasData || snapshot.data?.data() == null) {
           return CircleAvatar(radius: radius);
         }
 
@@ -25,10 +25,22 @@ class UserAvatar extends StatelessWidget {
 
         return CircleAvatar(
           radius: radius,
-          backgroundImage: imageUrl.isNotEmpty ? NetworkImage(imageUrl) : null,
-          child: imageUrl.isEmpty
-              ? Text(name.isNotEmpty ? name[0].toUpperCase() : "?")
-              : null,
+          backgroundColor: Colors.grey.shade300,
+          child: ClipOval(
+            child: imageUrl.isNotEmpty && imageUrl.startsWith('http')
+                ? Image.network(
+                    imageUrl,
+                    width: radius * 2,
+                    height: radius * 2,
+                    fit: BoxFit.cover,
+                  )
+                : Center(
+                    child: Text(
+                      name.isNotEmpty ? name[0].toUpperCase() : "?",
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+          ),
         );
       },
     );

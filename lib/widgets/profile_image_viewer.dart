@@ -14,11 +14,8 @@ class ProfileImageView extends StatelessWidget {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
       body: Center(
-        child: Hero(
-          tag: imageUrl,
-          child: InteractiveViewer(
-            child: Image.network(imageUrl, fit: BoxFit.contain),
-          ),
+        child: InteractiveViewer(
+          child: Image.network(imageUrl, fit: BoxFit.contain),
         ),
       ),
     );
