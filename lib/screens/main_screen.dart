@@ -5,7 +5,6 @@ import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:http/http.dart';
 
 class MainScreen extends StatefulWidget {
   final int initialIndex;
@@ -36,7 +35,10 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     return Scaffold(
-      body: IndexedStack(index: _currentIndex, children: pages),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: pages,
+      ), //routes among screens based on index
 
       bottomNavigationBar: MainBottomNav(
         currentIndex: _currentIndex,

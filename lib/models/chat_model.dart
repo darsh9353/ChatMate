@@ -7,7 +7,7 @@ class ChatModel {
   final String lastMessage;
   final DateTime timestamp;
 
-  // ✅ ADD THESE
+  //ADD THESE
   final bool lastMessageSeen;
   final String lastMessageSenderId;
 
@@ -18,7 +18,7 @@ class ChatModel {
     required this.lastMessage,
     required this.timestamp,
 
-    // ✅ NEW
+    // NEW
     required this.lastMessageSeen,
     required this.lastMessageSenderId,
   });
@@ -33,7 +33,7 @@ class ChatModel {
       'lastMessage': lastMessage,
       'timestamp': Timestamp.fromDate(timestamp),
 
-      // ✅ ADD THIS
+      // ADD THIS
       'lastMessageSeen': lastMessageSeen,
       'lastMessageSenderId': lastMessageSenderId,
     };
@@ -49,7 +49,7 @@ class ChatModel {
           ? (map['timestamp'] as Timestamp).toDate()
           : DateTime.now(),
 
-      // ✅ ADD THIS
+      // ADD THIS
       lastMessageSeen: map['lastMessageSeen'] ?? false,
       lastMessageSenderId: map['lastMessageSenderId'] ?? '',
     );
