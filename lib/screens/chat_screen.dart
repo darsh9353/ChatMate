@@ -47,9 +47,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // MARK AS SEEN
     markMessagesAsSeen();
-    context.read<BlockBloc>().add(
-      LoadBlockStatusEvent(widget.currentUserId, widget.otherUserId),
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<BlockBloc>().add(
+        LoadBlockStatusEvent(widget.currentUserId, widget.otherUserId),
+      );
+    });
   }
 
   Future<void> markMessagesAsSeen() async {
@@ -107,22 +109,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final text = messageController.text.trim();
     if (text.isEmpty) return;
-
-    final blockState = context.read<BlockBloc>().state;
-
-    if (blockState.isBlockedByMe) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("You blocked this user")));
-      return;
-    }
-
-    if (blockState.isBlockedByOther) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You can not message this user")),
-      );
-      return;
-    }
 
     setState(() => isSending = true); // LOCK BUTTON
 
@@ -182,7 +168,7 @@ class _ChatScreenState extends State<ChatScreen> {
     } catch (e) {
       print(e);
     }
-
+    if (!mounted) return;
     setState(() => isSending = false); //  UNLOCK BUTTON
   }
 
@@ -497,7 +483,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(16),
                     child: const Text(
                       "You blocked this user",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.red, fontSize: 17),
                     ),
                   );
                 }
@@ -508,7 +494,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     padding: const EdgeInsets.all(16),
                     child: const Text(
                       "You cannot message this user",
-                      style: TextStyle(color: Colors.red),
+                      style: TextStyle(color: Colors.red, fontSize: 17),
                     ),
                   );
                 }

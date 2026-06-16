@@ -15,7 +15,7 @@ class NavigationService {
   }) {
     return navigatorKey.currentState?.push(
       MaterialPageRoute(
-        builder: (_) => ChatScreen(
+        builder: (context) => ChatScreen(
           chatId: chatId,
           currentUserId: currentUserId,
           otherUserId: otherUserId,

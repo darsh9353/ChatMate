@@ -2,8 +2,7 @@ import 'package:chatmate/blocs/block/block_bloc.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:chatmate/firebase_messaging_background.dart';
-import 'package:chatmate/repositories/block_repository.dart'
-    show BlockRepository;
+import 'package:chatmate/repositories/block_repository.dart';
 import 'package:chatmate/services/block_service.dart';
 import 'package:chatmate/services/navigation_service.dart';
 import 'package:chatmate/services/notification_service.dart';

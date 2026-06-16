@@ -1,5 +1,4 @@
 import 'package:chatmate/screens/chat_screen.dart';
-import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -222,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (_) => ChatScreen(
+                                  builder: (context) => ChatScreen(
                                     chatId: chat.chatId,
                                     currentUserId: widget.currentUserId,
                                     otherUserId: otherUserId,

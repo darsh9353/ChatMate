@@ -1,7 +1,6 @@
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
-import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/screens/main_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/services/notification_service.dart';

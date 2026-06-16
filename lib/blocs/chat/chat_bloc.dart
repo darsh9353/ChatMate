@@ -1,4 +1,3 @@
-import 'package:chatmate/models/chat_model.dart';
 import 'package:chatmate/models/message_model.dart';
 import 'package:chatmate/repositories/chat_repository.dart';
 
@@ -27,7 +26,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       await emit.forEach<List<MessageModel>>(
         chatRepository.getMessages(event.chatId),
         onData: (messages) => ChatLoaded(messages),
-        onError: (_, __) => ChatError("Failed to load messages"),
+        onError: (_, _) => ChatError("Failed to load messages"),
       );
     });
 

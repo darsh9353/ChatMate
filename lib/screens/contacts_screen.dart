@@ -1,6 +1,4 @@
 import 'package:chatmate/screens/chat_screen.dart';
-import 'package:chatmate/widgets/app_background.dart';
-import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -144,7 +142,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => ChatScreen(
+                              builder: (context) => ChatScreen(
                                 currentUserId: widget.currentUserId,
                                 chatId: chatId,
                                 otherUserId: user.uid,

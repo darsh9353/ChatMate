@@ -20,8 +20,6 @@ class ImageKitService {
         },
       );
 
-      print("Response: ${response.body}");
-
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         return data['url'];
