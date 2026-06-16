@@ -1,4 +1,5 @@
 import 'package:chatmate/screens/chat_screen.dart';
+import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,41 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
           systemOverlayStyle: theme.brightness == Brightness.dark
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark,
-          actions: [
-            StreamBuilder<DocumentSnapshot>(
-              stream: getUserData(widget.currentUserId),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: CircleAvatar(radius: 18),
-                  );
-                }
-
-                final data = snapshot.data!.data() as Map<String, dynamic>;
-                final imagePath = data['profileImage'] ?? '';
-
-                return Padding(
-                  padding: const EdgeInsets.only(right: 10),
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 18,
-                        backgroundImage:
-                            (imagePath.isNotEmpty &&
-                                imagePath.startsWith('http'))
-                            ? NetworkImage(imagePath)
-                            : null,
-                        child: imagePath.isEmpty
-                            ? const Icon(Icons.person)
-                            : null,
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
         ),
 
         body: Column(

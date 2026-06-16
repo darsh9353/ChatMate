@@ -54,31 +54,63 @@ class ChatService {
     required String messageId,
     required String userId,
   }) async {
-    final docRef = _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .doc(messageId);
+    final chatRef = _firestore.collection('chats').doc(chatId);
+
+    final docRef = chatRef.collection('messages').doc(messageId);
 
     await docRef.update({
       'deletedFor': FieldValue.arrayUnion([userId]),
     });
+
+    //  Recalculate last visible message for THIS user
+    final messagesSnapshot = await chatRef
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    String newLastMessage = "No messages yet";
+
+    for (var doc in messagesSnapshot.docs) {
+      final data = doc.data();
+      final deletedFor = List<String>.from(data['deletedFor'] ?? []);
+
+      if (!deletedFor.contains(userId)) {
+        newLastMessage = data['message'];
+        break;
+      }
+    }
+
+    await chatRef.update({'lastMessage': newLastMessage});
   }
 
   Future<void> deleteForEveryone({
     required String chatId,
     required String messageId,
   }) async {
-    final docRef = _firestore
-        .collection('chats')
-        .doc(chatId)
-        .collection('messages')
-        .doc(messageId);
+    final chatRef = _firestore.collection('chats').doc(chatId);
 
+    final docRef = chatRef.collection('messages').doc(messageId);
+
+    // Mark message as deleted
     await docRef.update({
       'message': "This message was deleted",
       'reactions': {},
     });
+
+    //  Check if this was LAST message
+    final messagesSnapshot = await chatRef
+        .collection('messages')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    if (messagesSnapshot.docs.isNotEmpty) {
+      final latestMessage = messagesSnapshot.docs.first.data();
+
+      await chatRef.update({
+        'lastMessage': latestMessage['message'],
+        'timestamp': latestMessage['timestamp'],
+      });
+    }
   }
 
   Future<void> addReaction({

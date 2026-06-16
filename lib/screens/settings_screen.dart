@@ -8,7 +8,6 @@ import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/login_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
-import 'package:chatmate/widgets/bottom_navbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';

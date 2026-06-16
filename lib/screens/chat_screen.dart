@@ -34,6 +34,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
   final FcmSenderService _fcmSender = FcmSenderService();
+  bool isSending = false;
+
   @override
   void initState() {
     super.initState();
@@ -95,62 +97,71 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void sendMessage() async {
+    if (isSending) return; //  Prevent multiple taps
+
     final text = messageController.text.trim();
     if (text.isEmpty) return;
 
-    final bloc = context.read<ChatBloc>();
+    setState(() => isSending = true); // LOCK BUTTON
 
-    await ensureChatExists(text);
+    try {
+      final bloc = context.read<ChatBloc>();
 
-    final message = MessageModel(
-      messageId: const Uuid().v4(),
-      senderId: widget.currentUserId,
-      receiverId: widget.otherUserId,
-      message: text,
-      timestamp: DateTime.now(),
-      isSeen: false,
-    );
+      await ensureChatExists(text);
 
-    //  SEND MESSAGE (existing)
-    bloc.add(SendMessageEvent(chatId: widget.chatId, message: message));
+      final message = MessageModel(
+        messageId: const Uuid().v4(),
+        senderId: widget.currentUserId,
+        receiverId: widget.otherUserId,
+        message: text,
+        timestamp: DateTime.now(),
+        isSeen: false,
+      );
 
-    await FirebaseFirestore.instance
-        .collection('chats')
-        .doc(widget.chatId)
-        .update({
-          'lastMessage': text,
-          'timestamp': Timestamp.now(),
+      bloc.add(SendMessageEvent(chatId: widget.chatId, message: message));
 
-          'lastMessageSeen': false,
-          'lastMessageSenderId': widget.currentUserId,
-        });
+      await FirebaseFirestore.instance
+          .collection('chats')
+          .doc(widget.chatId)
+          .update({
+            'lastMessage': text,
+            'timestamp': Timestamp.now(),
+            'lastMessageSeen': false,
+            'lastMessageSenderId': widget.currentUserId,
+          });
 
-    messageController.clear();
+      messageController.clear();
 
-    final currentUserDoc = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.currentUserId)
-        .get();
-    final senderName = currentUserDoc.data()?['name'] as String? ?? 'Someone';
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.currentUserId)
+          .get();
 
-    await _fcmSender.sendChatNotification(
-      receiverId: widget.otherUserId,
-      senderId: widget.currentUserId,
-      senderName: senderName,
-      chatId: widget.chatId,
-      message: text,
-    );
+      final senderName = currentUserDoc.data()?['name'] as String? ?? 'Someone';
 
-    // smooth auto scroll
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (scrollController.hasClients) {
-        scrollController.animateTo(
-          0, // bottom in reverse mode
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
-    });
+      await _fcmSender.sendChatNotification(
+        receiverId: widget.otherUserId,
+        senderId: widget.currentUserId,
+        senderName: senderName,
+        chatId: widget.chatId,
+        message: text,
+      );
+
+      // scroll
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (scrollController.hasClients) {
+          scrollController.animateTo(
+            0,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    } catch (e) {
+      print(e);
+    }
+
+    setState(() => isSending = false); //  UNLOCK BUTTON
   }
 
   @override
@@ -448,10 +459,18 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(width: 8),
                   CircleAvatar(
                     backgroundColor: theme.colorScheme.primary,
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white),
-                      onPressed: sendMessage,
-                    ),
+                    child: isSending
+                        ? const Padding(
+                            padding: EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : IconButton(
+                            icon: const Icon(Icons.send, color: Colors.white),
+                            onPressed: sendMessage,
+                          ),
                   ),
                 ],
               ),
