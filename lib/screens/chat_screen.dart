@@ -119,7 +119,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
     if (blockState.isBlockedByOther) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("You cannot message this user")),
+        const SnackBar(content: Text("You can not message this user")),
       );
       return;
     }
