@@ -1,9 +1,14 @@
+import 'package:chatmate/blocs/block/block_bloc.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:chatmate/firebase_messaging_background.dart';
+import 'package:chatmate/repositories/block_repository.dart'
+    show BlockRepository;
+import 'package:chatmate/services/block_service.dart';
 import 'package:chatmate/services/navigation_service.dart';
 import 'package:chatmate/services/notification_service.dart';
 import 'package:chatmate/widgets/app_root.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:chatmate/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -41,6 +46,10 @@ class ChatMateApp extends StatelessWidget {
       providers: [
         RepositoryProvider<AuthRepository>(create: (_) => AuthRepository()),
         RepositoryProvider<ChatRepository>(create: (_) => ChatRepository()),
+        RepositoryProvider<BlockRepository>(
+          create: (_) =>
+              BlockRepository(BlockService(FirebaseFirestore.instance)),
+        ),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -52,6 +61,9 @@ class ChatMateApp extends StatelessWidget {
           ),
           BlocProvider<ChatListBloc>(
             create: (context) => ChatListBloc(context.read<ChatRepository>()),
+          ),
+          BlocProvider<BlockBloc>(
+            create: (context) => BlockBloc(context.read<BlockRepository>()),
           ),
           BlocProvider<SettingsBloc>(create: (context) => SettingsBloc()),
         ],

@@ -1,3 +1,6 @@
+import 'package:chatmate/blocs/block/block_bloc.dart';
+import 'package:chatmate/blocs/block/block_event.dart';
+import 'package:chatmate/blocs/block/block_state.dart';
 import 'package:chatmate/blocs/chat/chat_bloc.dart';
 import 'package:chatmate/blocs/chat/chat_event.dart';
 import 'package:chatmate/blocs/chat/chat_state.dart';
@@ -44,6 +47,9 @@ class _ChatScreenState extends State<ChatScreen> {
 
     // MARK AS SEEN
     markMessagesAsSeen();
+    context.read<BlockBloc>().add(
+      LoadBlockStatusEvent(widget.currentUserId, widget.otherUserId),
+    );
   }
 
   Future<void> markMessagesAsSeen() async {
@@ -101,6 +107,22 @@ class _ChatScreenState extends State<ChatScreen> {
 
     final text = messageController.text.trim();
     if (text.isEmpty) return;
+
+    final blockState = context.read<BlockBloc>().state;
+
+    if (blockState.isBlockedByMe) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("You blocked this user")));
+      return;
+    }
+
+    if (blockState.isBlockedByOther) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("You cannot message this user")),
+      );
+      return;
+    }
 
     setState(() => isSending = true); // LOCK BUTTON
 
@@ -188,6 +210,39 @@ class _ChatScreenState extends State<ChatScreen> {
             Text(widget.otherUserName),
           ],
         ),
+
+        actions: [
+          BlocBuilder<BlockBloc, BlockState>(
+            builder: (context, state) {
+              return PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'block') {
+                    context.read<BlockBloc>().add(
+                      BlockUserEvent(widget.currentUserId, widget.otherUserId),
+                    );
+                  } else {
+                    context.read<BlockBloc>().add(
+                      UnblockUserEvent(
+                        widget.currentUserId,
+                        widget.otherUserId,
+                      ),
+                    );
+                  }
+                },
+                itemBuilder: (context) {
+                  return [
+                    PopupMenuItem(
+                      value: state.isBlockedByMe ? 'unblock' : 'block',
+                      child: Text(
+                        state.isBlockedByMe ? 'Unblock User' : 'Block User',
+                      ),
+                    ),
+                  ];
+                },
+              );
+            },
+          ),
+        ],
       ),
       body: AppBackground(
         child: Column(
@@ -434,46 +489,72 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
               ),
             ),
+            BlocBuilder<BlockBloc, BlockState>(
+              builder: (context, blockState) {
+                // YOU BLOCKED THEM
+                if (blockState.isBlockedByMe) {
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    child: const Text(
+                      "You blocked this user",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
 
-            Container(
-              padding: const EdgeInsets.all(10),
-              color: theme.colorScheme.surface,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      textAlign: TextAlign.start,
-                      style: TextStyle(color: theme.colorScheme.onSecondary),
-                      controller: messageController,
-                      decoration: InputDecoration(
-                        hintText: "Type a message",
-                        filled: true,
-                        fillColor: theme.colorScheme.secondary,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(25),
-                          borderSide: BorderSide.none,
+                // HEY BLOCKED YOU
+                if (blockState.isBlockedByOther) {
+                  return Container(
+                    padding: const EdgeInsets.all(16),
+                    child: const Text(
+                      "You cannot message this user",
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+
+                return Container(
+                  padding: const EdgeInsets.all(10),
+                  color: Theme.of(context).colorScheme.surface,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: messageController,
+                          decoration: InputDecoration(
+                            hintText: "Type a message",
+                            filled: true,
+                            fillColor: Theme.of(context).colorScheme.secondary,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(25),
+                              borderSide: BorderSide.none,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: isSending
+                            ? const Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : IconButton(
+                                icon: const Icon(
+                                  Icons.send,
+                                  color: Colors.white,
+                                ),
+                                onPressed: sendMessage,
+                              ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  CircleAvatar(
-                    backgroundColor: theme.colorScheme.primary,
-                    child: isSending
-                        ? const Padding(
-                            padding: EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : IconButton(
-                            icon: const Icon(Icons.send, color: Colors.white),
-                            onPressed: sendMessage,
-                          ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ],
         ),

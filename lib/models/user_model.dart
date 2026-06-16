@@ -6,6 +6,7 @@ class UserModel {
   final bool isOnline;
   final DateTime lastSeen;
   final String? fcmToken;
+  final List<String> blockedUsers;
 
   const UserModel({
     required this.uid,
@@ -15,10 +16,10 @@ class UserModel {
     required this.isOnline,
     required this.lastSeen,
     this.fcmToken,
+    this.blockedUsers = const [],
   });
 
   Map<String, dynamic> toMap() {
-    //Object → Map (send to Firebase)
     return {
       'uid': uid,
       'name': name,
@@ -26,24 +27,23 @@ class UserModel {
       'profileImage': profileImage,
       'isOnline': isOnline,
       'lastSeen': lastSeen.millisecondsSinceEpoch,
+      'blockedUsers': blockedUsers,
       if (fcmToken != null) 'fcmToken': fcmToken,
     };
   }
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
-    //Map → Object (get from Firebase)
-
     return UserModel(
-      uid: map['uid'] as String? ?? '',
-      name: map['name'] as String? ?? '',
-      phoneNumber: map['phoneNumber'] as String? ?? '',
-      profileImage: map['profileImage'] as String? ?? '',
-      isOnline: map['isOnline'] as bool? ?? false,
-
+      uid: map['uid'] ?? '',
+      name: map['name'] ?? '',
+      phoneNumber: map['phoneNumber'] ?? '',
+      profileImage: map['profileImage'] ?? '',
+      isOnline: map['isOnline'] ?? false,
       lastSeen: map['lastSeen'] != null
           ? DateTime.fromMillisecondsSinceEpoch(map['lastSeen'])
           : DateTime.now(),
-      fcmToken: map['fcmToken'] as String?,
+      fcmToken: map['fcmToken'],
+      blockedUsers: List<String>.from(map['blockedUsers'] ?? []),
     );
   }
 }
