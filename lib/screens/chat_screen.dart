@@ -4,6 +4,7 @@ import 'package:chatmate/blocs/block/block_state.dart';
 import 'package:chatmate/blocs/chat/chat_bloc.dart';
 import 'package:chatmate/blocs/chat/chat_event.dart';
 import 'package:chatmate/blocs/chat/chat_state.dart';
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/services/fcm_sender_service.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
@@ -508,7 +509,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: TextField(
                           controller: messageController,
                           decoration: InputDecoration(
-                            hintText: "Type a message",
+                            hintText:
+                                AppLocalizations.of(context)?.typeMessage ??
+                                "Type a message",
                             filled: true,
                             fillColor: Theme.of(context).colorScheme.secondary,
                             border: OutlineInputBorder(

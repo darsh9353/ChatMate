@@ -1,0 +1,12 @@
+{
+  "appTitle": "ChatMate",
+  "darkMode": "Dark Mode",
+  "editProfile": "Edit Profile",
+  "logout": "Logout",
+  "language": "Language",
+  "allContacts":"All Contacts",
+  "chats": "Chats",
+  "contacts": "Contacts",
+  "settings": "Settings",
+   "typeMessage": "Type a message"
+}

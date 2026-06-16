@@ -1,7 +1,10 @@
 import 'package:chatmate/blocs/block/block_bloc.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
+import 'package:chatmate/blocs/language/langauge_bloc.dart';
+import 'package:chatmate/blocs/language/language_state.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:chatmate/firebase_messaging_background.dart';
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/repositories/block_repository.dart';
 import 'package:chatmate/services/block_service.dart';
 import 'package:chatmate/services/navigation_service.dart';
@@ -24,6 +27,7 @@ import 'package:chatmate/blocs/chat/chat_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_bloc.dart';
 
 import 'package:chatmate/theme/app_theme.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,20 +68,46 @@ class ChatMateApp extends StatelessWidget {
           BlocProvider<BlockBloc>(
             create: (context) => BlockBloc(context.read<BlockRepository>()),
           ),
+          BlocProvider<LanguageBloc>(create: (context) => LanguageBloc()),
           BlocProvider<SettingsBloc>(create: (context) => SettingsBloc()),
         ],
-        child: BlocBuilder<SettingsBloc, SettingsState>(
-          builder: (context, settingsState) {
-            return MaterialApp(
-              title: 'ChatMate',
-              debugShowCheckedModeBanner: false,
-              navigatorKey: NavigationService.navigatorKey,
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              themeMode: settingsState.themeMode,
-              home: const AppRoot(),
-            );
-          },
+        child: MultiBlocListener(
+          listeners: [
+            BlocListener<LanguageBloc, LanguageState>(
+              listener: (context, state) {
+                // triggers rebuild via BlocBuilder below
+              },
+            ),
+          ],
+          child: BlocBuilder<LanguageBloc, LanguageState>(
+            builder: (context, langState) {
+              return BlocBuilder<SettingsBloc, SettingsState>(
+                builder: (context, settingsState) {
+                  return MaterialApp(
+                    title: 'ChatMate',
+                    debugShowCheckedModeBanner: false,
+                    navigatorKey: NavigationService.navigatorKey,
+                    theme: AppTheme.lightTheme,
+                    darkTheme: AppTheme.darkTheme,
+                    themeMode: settingsState.themeMode,
+
+                    locale: langState.locale,
+
+                    supportedLocales: const [Locale('en'), Locale('kn')],
+
+                    localizationsDelegates: const [
+                      AppLocalizations.delegate,
+                      GlobalMaterialLocalizations.delegate,
+                      GlobalWidgetsLocalizations.delegate,
+                      GlobalCupertinoLocalizations.delegate,
+                    ],
+
+                    home: const AppRoot(),
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );

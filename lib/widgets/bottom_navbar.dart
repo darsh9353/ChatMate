@@ -1,3 +1,4 @@
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class MainBottomNav extends StatelessWidget {
@@ -19,10 +20,19 @@ class MainBottomNav extends StatelessWidget {
       selectedItemColor: theme.colorScheme.primary,
       backgroundColor: theme.colorScheme.secondary,
       onTap: onTap, // just callback
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chats"),
-        BottomNavigationBarItem(icon: Icon(Icons.contacts), label: "Contacts"),
-        BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
+      items: [
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.chat),
+          label: AppLocalizations.of(context)?.chats ?? "Chats",
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.contacts),
+          label: AppLocalizations.of(context)?.contacts ?? "Contacts",
+        ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.settings),
+          label: AppLocalizations.of(context)?.settings ?? "Settings",
+        ),
       ],
     );
   }

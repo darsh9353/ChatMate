@@ -1,3 +1,4 @@
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/screens/chat_screen.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +35,9 @@ class _ContactsScreenState extends State<ContactsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("All Contacts"),
+        title: Text(
+          AppLocalizations.of(context)?.allContacts ?? "All Contacts",
+        ),
         backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark
             ? SystemUiOverlayStyle.light

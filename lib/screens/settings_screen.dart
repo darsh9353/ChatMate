@@ -1,9 +1,13 @@
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
+import 'package:chatmate/blocs/language/langauge_bloc.dart';
+import 'package:chatmate/blocs/language/language_event.dart';
+import 'package:chatmate/blocs/language/language_state.dart';
 import 'package:chatmate/blocs/settings/settings_bloc.dart';
 import 'package:chatmate/blocs/settings/settings_event.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/login_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
@@ -54,8 +58,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ? SystemUiOverlayStyle.light
               : SystemUiOverlayStyle.dark,
           elevation: 0,
-          title: const Text(
-            "ChatMate",
+          title: Text(
+            AppLocalizations.of(context)?.appTitle ?? "ChatMate",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
         ),
@@ -123,7 +127,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: SwitchListTile(
-                      title: const Text("Dark Mode"),
+                      title: Text(
+                        AppLocalizations.of(context)?.darkMode ?? "Dark Mode",
+                      ),
                       value: isDark,
                       onChanged: (value) {
                         context.read<SettingsBloc>().add(
@@ -136,6 +142,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
 
               const SizedBox(height: 20),
+
+              BlocBuilder<LanguageBloc, LanguageState>(
+                builder: (context, state) {
+                  final isKannada = state.locale.languageCode == 'kn';
+
+                  return Container(
+                    width: width * 0.7,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: SwitchListTile(
+                      title: Text(
+                        AppLocalizations.of(context)?.language ?? "Language",
+                      ),
+                      subtitle: Text(
+                        isKannada ? "ಕನ್ನಡ ↔ English" : "English ↔ ಕನ್ನಡ",
+                      ),
+                      secondary: const Icon(Icons.language),
+                      value: isKannada,
+                      onChanged: (value) {
+                        context.read<LanguageBloc>().add(
+                          ChangeLanguageEvent(
+                            value ? const Locale('kn') : const Locale('en'),
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
+              const SizedBox(height: 15),
 
               //  EDIT PROFILE
               SizedBox(
@@ -153,7 +192,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     );
                   },
-                  child: const Text("Edit Profile"),
+                  child: Text(
+                    AppLocalizations.of(context)?.editProfile ?? "Edit Profile",
+                  ),
                 ),
               ),
 
@@ -170,7 +211,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   onPressed: () {
                     context.read<AuthBloc>().add(LogoutEvent());
                   },
-                  child: const Text("Logout"),
+                  child: Text(AppLocalizations.of(context)?.logout ?? "Logout"),
                 ),
               ),
             ],
