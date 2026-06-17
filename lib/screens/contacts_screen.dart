@@ -56,7 +56,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
             },
             keyboardType: TextInputType.text,
             decoration: InputDecoration(
-              hintText: "Discover People",
+              hintText:
+                  AppLocalizations.of(context)?.searchPeople ?? "Search People",
               prefixIcon: const Icon(Icons.search),
               suffixIcon: searchQuery.isNotEmpty
                   ? IconButton(
@@ -99,7 +100,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
                 }).toList();
 
                 if (filteredUsers.isEmpty) {
-                  return const Center(child: Text("No users found"));
+                  return Center(
+                    child: Text(
+                      AppLocalizations.of(context)?.noUsersFound ??
+                          "No User Found",
+                    ),
+                  );
                 }
 
                 return ListView.builder(

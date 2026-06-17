@@ -221,7 +221,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     PopupMenuItem(
                       value: state.isBlockedByMe ? 'unblock' : 'block',
                       child: Text(
-                        state.isBlockedByMe ? 'Unblock User' : 'Block User',
+                        state.isBlockedByMe
+                            ? AppLocalizations.of(context)?.unblockUser ??
+                                  'Unblock User'
+                            : AppLocalizations.of(context)?.blockUser ??
+                                  'Block User',
                       ),
                     ),
                   ];
@@ -246,7 +250,11 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
 
                     if (messages.isEmpty) {
-                      return const Center(child: Text("Say Hi 👋"));
+                      return Center(
+                        child: Text(
+                          AppLocalizations.of(context)?.sayHi ?? "Say Hi",
+                        ),
+                      );
                     }
 
                     return ListView.builder(
@@ -276,7 +284,12 @@ class _ChatScreenState extends State<ChatScreen> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     ListTile(
-                                      title: const Text("Delete for me"),
+                                      title: Text(
+                                        AppLocalizations.of(
+                                              context,
+                                            )?.deleteForMe ??
+                                            "Delete for me",
+                                      ),
                                       onTap: () {
                                         context.read<ChatBloc>().add(
                                           DeleteForMeEvent(
@@ -292,8 +305,11 @@ class _ChatScreenState extends State<ChatScreen> {
                                     // ONLY SENDER CAN DELETE FOR EVERYONE
                                     if (isMe)
                                       ListTile(
-                                        title: const Text(
-                                          "Delete for everyone",
+                                        title: Text(
+                                          AppLocalizations.of(
+                                                context,
+                                              )?.deleteForEveryone ??
+                                              "Delete For Everyone",
                                         ),
                                         onTap: () {
                                           context.read<ChatBloc>().add(
@@ -482,8 +498,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (blockState.isBlockedByMe) {
                   return Container(
                     padding: const EdgeInsets.all(16),
-                    child: const Text(
-                      "You blocked this user",
+                    child: Text(
+                      AppLocalizations.of(context)?.youBlockedThisUser ??
+                          "You blocked this user",
                       style: TextStyle(color: Colors.red, fontSize: 17),
                     ),
                   );
@@ -493,8 +510,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 if (blockState.isBlockedByOther) {
                   return Container(
                     padding: const EdgeInsets.all(16),
-                    child: const Text(
-                      "You cannot message this user",
+                    child: Text(
+                      AppLocalizations.of(context)?.cannotMessageUser ??
+                          "You cannot message this user",
                       style: TextStyle(color: Colors.red, fontSize: 17),
                     ),
                   );

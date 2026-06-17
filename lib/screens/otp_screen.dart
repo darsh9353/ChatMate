@@ -1,6 +1,7 @@
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/screens/main_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/services/notification_service.dart';
@@ -32,7 +33,7 @@ class _OtpScreenState extends State<OtpScreen> {
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
         elevation: 0,
-        title: const Text("ChatMate"),
+        title: Text(AppLocalizations.of(context)?.appTitle ?? "ChatMate"),
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -78,7 +79,7 @@ class _OtpScreenState extends State<OtpScreen> {
                     const SizedBox(height: 20),
 
                     Text(
-                      "Verify it's you",
+                      AppLocalizations.of(context)?.verify ?? "Verify it's you",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -153,7 +154,10 @@ class _OtpScreenState extends State<OtpScreen> {
                                 ? const CircularProgressIndicator(
                                     color: Colors.white,
                                   )
-                                : const Text("Verify"),
+                                : Text(
+                                    AppLocalizations.of(context)?.verify ??
+                                        "Verify",
+                                  ),
                           );
                         },
                       ),

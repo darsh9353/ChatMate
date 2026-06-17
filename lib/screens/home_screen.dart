@@ -76,7 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 },
                 decoration: InputDecoration(
                   fillColor: theme.colorScheme.surface,
-                  hintText: "Search chats...",
+                  hintText:
+                      AppLocalizations.of(context)?.searchChats ??
+                      "Search chats...",
                   prefixIcon: const Icon(Icons.search),
 
                   suffixIcon: searchQuery.isNotEmpty
@@ -125,7 +127,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     }).toList();
 
                     if (filteredChats.isEmpty) {
-                      return const Center(child: Text("No matching chats"));
+                      return Center(
+                        child: Text(
+                          AppLocalizations.of(context)?.noMatchingChat ??
+                              "No matching chats",
+                        ),
+                      );
                     }
 
                     return ListView.builder(
@@ -236,16 +243,29 @@ class _HomeScreenState extends State<HomeScreen> {
                                 context: context,
                                 builder: (context) {
                                   return AlertDialog(
-                                    title: const Text("Delete Chat"),
-                                    content: const Text(
-                                      "Do you want to delete this chat?",
+                                    title: Text(
+                                      AppLocalizations.of(
+                                            context,
+                                          )?.deleteChat ??
+                                          "Delete Chat",
+                                    ),
+                                    content: Text(
+                                      AppLocalizations.of(
+                                            context,
+                                          )?.doYouWantToDeleteThisChat ??
+                                          "Do you want to delete this chat?",
                                     ),
                                     actions: [
                                       TextButton(
                                         onPressed: () {
                                           Navigator.pop(context); // CANCEL
                                         },
-                                        child: const Text("Cancel"),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                                context,
+                                              )?.cancel ??
+                                              "Cancel",
+                                        ),
                                       ),
                                       TextButton(
                                         onPressed: () async {
@@ -258,7 +278,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ),
                                           );
                                         },
-                                        child: const Text("Delete"),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                                context,
+                                              )?.delete ??
+                                              "Delete",
+                                        ),
                                       ),
                                     ],
                                   );

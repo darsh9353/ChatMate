@@ -1,6 +1,7 @@
 import 'package:chatmate/blocs/auth/auth_bloc.dart';
 import 'package:chatmate/blocs/auth/auth_event.dart';
 import 'package:chatmate/blocs/auth/auth_state.dart';
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/screens/otp_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
         elevation: 0,
-        title: const Text("ChatMate"),
+        title: Text(AppLocalizations.of(context)?.appTitle ?? "ChatMate"),
       ),
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -77,7 +78,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 10),
 
                       Text(
-                        'LOGIN',
+                        AppLocalizations.of(context)?.login ?? 'LOGIN',
                         style: TextStyle(
                           fontSize: 22,
                           fontWeight: FontWeight.bold,
@@ -195,8 +196,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                               color:
                                                   theme.colorScheme.onSecondary,
                                             )
-                                          : const Text(
-                                              'Send OTP',
+                                          : Text(
+                                              AppLocalizations.of(
+                                                    context,
+                                                  )?.sendOTP ??
+                                                  'Send OTP',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w600,

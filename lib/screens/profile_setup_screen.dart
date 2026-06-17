@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/models/user_model.dart';
 import 'package:chatmate/repositories/auth_repository.dart';
-import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/screens/main_screen.dart';
 import 'package:chatmate/services/image_service.dart';
 import 'package:chatmate/services/notification_service.dart';
@@ -83,9 +83,14 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
         systemOverlayStyle: theme.brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
-        leading: const Icon(Icons.arrow_back),
-        title: const Text(
-          "ChatMate",
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+        title: Text(
+          AppLocalizations.of(context)?.appTitle ?? "ChatMate",
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
@@ -98,7 +103,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                 const SizedBox(height: 10),
 
                 Text(
-                  "Set up profile",
+                  AppLocalizations.of(context)?.setUpProfile ??
+                      "Set up profile",
                   style: TextStyle(
                     fontSize: 26,
                     fontWeight: FontWeight.bold,
@@ -177,14 +183,24 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
 
                       if (name.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Enter your name")),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(context)?.enterYourName ??
+                                  "Enter your name",
+                            ),
+                          ),
                         );
                         return;
                       }
 
                       if (user == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("User not logged in")),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(context)?.userNotLoggedIn ??
+                                  "User not logged in",
+                            ),
+                          ),
                         );
                         return;
                       }
@@ -236,14 +252,20 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           );
                         }
                       } catch (e) {
-                        print("Error: $e");
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Something went wrong")),
+                          SnackBar(
+                            content: Text(
+                              AppLocalizations.of(
+                                    context,
+                                  )?.somethingWentWrong ??
+                                  "Something went wrong",
+                            ),
+                          ),
                         );
                       }
                     },
-                    child: const Text(
-                      "Continue",
+                    child: Text(
+                      AppLocalizations.of(context)?.continuee ?? "Continue",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),

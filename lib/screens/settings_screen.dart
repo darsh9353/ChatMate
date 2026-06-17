@@ -12,6 +12,7 @@ import 'package:chatmate/repositories/auth_repository.dart';
 import 'package:chatmate/screens/login_screen.dart';
 import 'package:chatmate/screens/profile_setup_screen.dart';
 import 'package:chatmate/widgets/app_background.dart';
+import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -90,15 +91,37 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                     child: Column(
                       children: [
-                        CircleAvatar(
-                          radius: 55,
-                          backgroundColor: theme.colorScheme.secondary,
-                          backgroundImage: imagePath.isNotEmpty
-                              ? NetworkImage(imagePath)
-                              : null,
-                          child: imagePath.isEmpty
-                              ? const Icon(Icons.person, size: 40)
-                              : null,
+                        GestureDetector(
+                          child: CircleAvatar(
+                            radius: 55,
+                            backgroundColor: theme.colorScheme.secondary,
+                            backgroundImage: imagePath.isNotEmpty
+                                ? NetworkImage(imagePath)
+                                : null,
+                            child: imagePath.isEmpty
+                                ? const Icon(Icons.person, size: 40)
+                                : null,
+                          ),
+                          onTap: () async {
+                            final doc = await FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(user.uid)
+                                .get();
+
+                            final data = doc.data();
+                            final imageUrl = data?['profileImage'] ?? '';
+
+                            if (imageUrl.isNotEmpty &&
+                                imageUrl.startsWith('http')) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      ProfileImageView(imageUrl: imageUrl),
+                                ),
+                              );
+                            }
+                          },
                         ),
                         const SizedBox(height: 15),
                         Text(

@@ -37,4 +37,76 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get typeMessage => 'Type a message';
+
+  @override
+  String get setUpProfile => 'Set up profile';
+
+  @override
+  String get deleteForMe => 'Delete for me';
+
+  @override
+  String get deleteForEveryone => 'Delete for everyone';
+
+  @override
+  String get sayHi => 'Say Hi';
+
+  @override
+  String get noUsersFound => 'No users found';
+
+  @override
+  String get verify => 'Verify';
+
+  @override
+  String get enterYourName => 'Enter your name';
+
+  @override
+  String get userNotLoggedIn => 'User not logged in';
+
+  @override
+  String get somethingWentWrong => 'Something went wrong';
+
+  @override
+  String get noMatchingChat => 'No Matching Chat';
+
+  @override
+  String get deleteChat => 'Delete Chat';
+
+  @override
+  String get doYouWantToDeleteThisChat => 'Do you want to delete this chat?';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String get unblockUser => 'Unblock User';
+
+  @override
+  String get blockUser => 'Block User';
+
+  @override
+  String get youBlockedThisUser => 'You blocked this user';
+
+  @override
+  String get cannotMessageUser => 'You cannot message this user';
+
+  @override
+  String get sendOTP => 'Send OTP';
+
+  @override
+  String get verifyItsYou => 'Verify it\'s you';
+
+  @override
+  String get login => 'LOGIN';
+
+  @override
+  String get continuee => 'Continue';
+
+  @override
+  String get searchChats => 'Search chats...';
+
+  @override
+  String get searchPeople => 'Search people';
 }
