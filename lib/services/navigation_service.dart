@@ -1,4 +1,4 @@
-import 'package:chatmate/screens/chat_screen.dart';
+import 'package:chatmate/screens/chat_screen/chat_screen.dart';
 import 'package:flutter/material.dart';
 
 /// Global navigator used to open a chat from notification taps

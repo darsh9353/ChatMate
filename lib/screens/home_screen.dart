@@ -1,5 +1,5 @@
 import 'package:chatmate/l10n/app_localizations.dart';
-import 'package:chatmate/screens/chat_screen.dart';
+import 'package:chatmate/screens/chat_screen/chat_screen.dart';
 import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
