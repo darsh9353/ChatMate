@@ -6,7 +6,9 @@ class SettingsState {
   SettingsState({required this.themeMode});
 
   factory SettingsState.initial() {
-    return SettingsState(themeMode: ThemeMode.system);
+    return SettingsState(
+      themeMode: ThemeMode.system, // temporary
+    );
   }
 
   SettingsState copyWith({ThemeMode? themeMode}) {

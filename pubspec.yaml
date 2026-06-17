@@ -52,6 +52,7 @@ dependencies:
   googleapis_auth: ^2.0.0
   flutter_contacts: ^1.1.7
   permission_handler: ^11.3.1
+  shared_preferences: ^2.2.2
   
 
 dev_dependencies:
