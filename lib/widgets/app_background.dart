@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:chatmate/theme/app_theme.dart';
 
 class AppBackground extends StatelessWidget {
   final Widget child;
@@ -7,12 +8,22 @@ class AppBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    //  Detect theme mode
+    final isDark = theme.brightness == Brightness.dark;
+
+    //  Pick gradient based on theme
+    final gradientColors = isDark
+        ? AppTheme.darkGradient
+        : AppTheme.lightGradient;
+
     return Container(
       width: double.infinity,
       height: double.infinity,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFE8F0EF), Color.fromARGB(255, 176, 212, 206)],
+          colors: gradientColors,
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),
@@ -21,14 +32,3 @@ class AppBackground extends StatelessWidget {
     );
   }
 }
-
-
-/*
- colors: [Color(0xFFE8F0EF), Color(0xFF81C2B7)],
- Scaffold(
-  body: AppBackground(
-    child: Center(
-      child: Text("Hello"),
-    ),
-  ),
-)*/

@@ -242,7 +242,9 @@ class _ChatScreenState extends State<ChatScreen> {
               child: BlocBuilder<ChatBloc, ChatState>(
                 builder: (context, state) {
                   if (state is ChatLoaded) {
-                    final messages = state.messages;
+                    final messages = state.messages.where((msg) {
+                      return !msg.deletedFor.contains(widget.currentUserId);
+                    }).toList();
                     WidgetsBinding.instance.addPostFrameCallback((_) {
                       if (scrollController.hasClients) {
                         scrollController.jumpTo(0); //  bottom

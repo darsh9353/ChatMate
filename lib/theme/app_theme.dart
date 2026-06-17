@@ -62,4 +62,16 @@ class AppTheme {
 
     dividerColor: Color(0xFF374151),
   );
+
+  //  LIGHT BACKGROUND GRADIENT
+  static const List<Color> lightGradient = [
+    Color(0xFFE8F0EF),
+    Color(0xFFB0D4CE),
+  ];
+
+  //  DARK BACKGROUND GRADIENT
+  static const List<Color> darkGradient = [
+    Color.fromARGB(255, 41, 45, 77),
+    Color.fromARGB(169, 104, 158, 146),
+  ];
 }

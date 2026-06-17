@@ -134,8 +134,31 @@ class ChatService {
   }) async {
     final chatRef = _firestore.collection('chats').doc(chatId);
 
+    // 1. Hide chat
     await chatRef.update({
       'hiddenFor': FieldValue.arrayUnion([userId]),
     });
+
+    // 2. Delete all messages for this user
+    await deleteEntireChatMessagesForMe(chatId: chatId, userId: userId);
+  }
+
+  Future<void> deleteEntireChatMessagesForMe({
+    required String chatId,
+    required String userId,
+  }) async {
+    final chatRef = _firestore.collection('chats').doc(chatId);
+
+    final messagesSnapshot = await chatRef.collection('messages').get();
+
+    final batch = _firestore.batch();
+
+    for (var doc in messagesSnapshot.docs) {
+      batch.update(doc.reference, {
+        'deletedFor': FieldValue.arrayUnion([userId]),
+      });
+    }
+
+    await batch.commit();
   }
 }
