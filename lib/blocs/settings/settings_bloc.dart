@@ -6,9 +6,6 @@ import 'package:chatmate/services/theme_service.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
   SettingsBloc() : super(SettingsState.initial()) {
-    // LOAD SAVED THEME
-    _loadTheme();
-
     on<ToggleThemeEvent>((event, emit) async {
       final mode = event.isDark ? ThemeMode.dark : ThemeMode.light;
 
@@ -22,11 +19,11 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
 
       emit(state.copyWith(themeMode: event.themeMode));
     });
-  }
 
-  // LOAD METHOD
-  void _loadTheme() async {
-    final mode = await ThemeService.loadTheme();
-    emit(state.copyWith(themeMode: mode));
+    on<LoadThemeEvent>((event, emit) async {
+      final mode = await ThemeService.loadTheme();
+      emit(state.copyWith(themeMode: mode));
+    });
+    add(LoadThemeEvent());
   }
 }

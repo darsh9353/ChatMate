@@ -1,6 +1,7 @@
 import 'package:chatmate/blocs/block/block_bloc.dart';
 import 'package:chatmate/blocs/chat_list/chat_list_bloc.dart';
 import 'package:chatmate/blocs/language/langauge_bloc.dart';
+import 'package:chatmate/blocs/language/language_event.dart';
 import 'package:chatmate/blocs/language/language_state.dart';
 import 'package:chatmate/blocs/settings/settings_state.dart';
 import 'package:chatmate/firebase_messaging_background.dart';
@@ -68,7 +69,9 @@ class ChatMateApp extends StatelessWidget {
           BlocProvider<BlockBloc>(
             create: (context) => BlockBloc(context.read<BlockRepository>()),
           ),
-          BlocProvider<LanguageBloc>(create: (context) => LanguageBloc()),
+          BlocProvider<LanguageBloc>(
+            create: (context) => LanguageBloc()..add(LoadLanguageEvent()),
+          ),
           BlocProvider<SettingsBloc>(create: (context) => SettingsBloc()),
         ],
         child: MultiBlocListener(

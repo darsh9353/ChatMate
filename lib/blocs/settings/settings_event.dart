@@ -13,3 +13,5 @@ class SetThemeEvent extends SettingsEvent {
 
   SetThemeEvent(this.themeMode);
 }
+
+class LoadThemeEvent extends SettingsEvent {}
