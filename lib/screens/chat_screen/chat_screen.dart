@@ -1,4 +1,5 @@
 import 'package:chatmate/screens/chat_screen/services/chat_helpers.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:chatmate/blocs/chat/chat_bloc.dart';
@@ -10,6 +11,7 @@ import 'widgets/message_input.dart';
 import 'widgets/block_status_view.dart';
 import 'widgets/message_list.dart';
 import 'widgets/chat_app_bar.dart';
+import 'package:chatmate/services/fcm_sender_service.dart';
 
 class ChatScreen extends StatefulWidget {
   final String currentUserId;
@@ -32,6 +34,8 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController messageController = TextEditingController();
   final ScrollController scrollController = ScrollController();
+
+  final FcmSenderService _fcmSender = FcmSenderService();
 
   bool isSending = false;
 
@@ -75,6 +79,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
       context.read<ChatBloc>().add(
         SendMessageEvent(chatId: widget.chatId, message: message),
+      );
+
+      final currentUserDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(widget.currentUserId)
+          .get();
+
+      final senderName = currentUserDoc.data()?['name'] as String? ?? 'Someone';
+
+      await _fcmSender.sendChatNotification(
+        receiverId: widget.otherUserId,
+        senderId: widget.currentUserId,
+        senderName: senderName,
+        chatId: widget.chatId,
+        message: text,
       );
 
       messageController.clear();

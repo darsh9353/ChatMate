@@ -1,9 +1,6 @@
-// file: services/chat_helper.dart
-
 import 'package:chatmate/models/message_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:uuid/uuid.dart';
-// import '../models/message_model.dart';
 
 class ChatHelper {
   static Future<void> markMessagesAsSeen(String chatId, String userId) async {
