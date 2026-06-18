@@ -296,8 +296,34 @@ abstract class AppLocalizations {
   /// No description provided for @searchPeople.
   ///
   /// In en, this message translates to:
-  /// **'Search people'**
+  /// **'Search'**
   String get searchPeople;
+
+  String get discoverPeople;
+
+  String get discoverSearchHint;
+
+  String get discoverEmptyTitle;
+
+  String get discoverEmptySubtitle;
+
+  String get discoverNoResults;
+
+  String get contactsPermissionRequired;
+
+  String get openSettings;
+
+  String get onChatMate;
+
+  String get notOnChatMate;
+
+  String get startChat;
+
+  String get sendInvite;
+
+  String get inviteSent;
+
+  String get couldNotOpenSms;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

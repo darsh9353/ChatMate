@@ -32,5 +32,18 @@
   "login": "ಲಾಗಿನ್",
   "continuee": "ಮುಂದುವರಿಸಿ",
   "searchChats": "ಚಾಟ್‌ಗಳನ್ನು ಹುಡುಕಿ...",
-  "searchPeople": "ಜನರನ್ನು ಹುಡುಕಿ"
+  "searchPeople": "ಹುಡುಕಿ",
+  "discoverPeople": "ಜನರನ್ನು ಕಂಡುಹಿಡಿಯಿರಿ",
+  "discoverSearchHint": "ಹೆಸರು ಅಥವಾ ಫೋನ್ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ",
+  "discoverEmptyTitle": "ನಿಮ್ಮ ಫೋನ್‌ನಿಂದ ಜನರನ್ನು ಹುಡುಕಿ",
+  "discoverEmptySubtitle": "ಸಂಪರ್ಕ ಹೆಸರು ಅಥವಾ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ. ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಪಟ್ಟಿ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.",
+  "discoverNoResults": "ಹೊಂದಾಣಿಕೆಯ ಸಂಪರ್ಕಗಳು ಕಂಡುಬಂದಿಲ್ಲ",
+  "contactsPermissionRequired": "ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜನರನ್ನು ಹುಡುಕಲು ಸಂಪರ್ಕ ಅನುಮತಿ ಅಗತ್ಯ.",
+  "openSettings": "ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ",
+  "onChatMate": "ChatMate ನಲ್ಲಿ ಇದ್ದಾರೆ",
+  "notOnChatMate": "ಇನ್ನೂ ChatMate ನಲ್ಲಿ ಇಲ್ಲ",
+  "startChat": "ಚಾಟ್",
+  "sendInvite": "ಆಹ್ವಾನ",
+  "inviteSent": "SMS ಆ್ಯಪ್‌ನಲ್ಲಿ ಆಹ್ವಾನ ತೆರೆಯಲಾಗಿದೆ",
+  "couldNotOpenSms": "SMS ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"
 } 

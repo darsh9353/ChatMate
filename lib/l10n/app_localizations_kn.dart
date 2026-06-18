@@ -108,5 +108,46 @@ class AppLocalizationsKn extends AppLocalizations {
   String get searchChats => 'ಚಾಟ್‌ಗಳನ್ನು ಹುಡುಕಿ...';
 
   @override
-  String get searchPeople => 'ಜನರನ್ನು ಹುಡುಕಿ';
+  String get searchPeople => 'ಹುಡುಕಿ';
+
+  @override
+  String get discoverPeople => 'ಜನರನ್ನು ಕಂಡುಹಿಡಿಯಿರಿ';
+
+  @override
+  String get discoverSearchHint => 'ಹೆಸರು ಅಥವಾ ಫೋನ್ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ';
+
+  @override
+  String get discoverEmptyTitle => 'ನಿಮ್ಮ ಫೋನ್‌ನಿಂದ ಜನರನ್ನು ಹುಡುಕಿ';
+
+  @override
+  String get discoverEmptySubtitle =>
+      'ಸಂಪರ್ಕ ಹೆಸರು ಅಥವಾ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ. ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಪಟ್ಟಿ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.';
+
+  @override
+  String get discoverNoResults => 'ಹೊಂದಾಣಿಕೆಯ ಸಂಪರ್ಕಗಳು ಕಂಡುಬಂದಿಲ್ಲ';
+
+  @override
+  String get contactsPermissionRequired =>
+      'ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜನರನ್ನು ಹುಡುಕಲು ಸಂಪರ್ಕ ಅನುಮತಿ ಅಗತ್ಯ.';
+
+  @override
+  String get openSettings => 'ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ';
+
+  @override
+  String get onChatMate => 'ChatMate ನಲ್ಲಿ ಇದ್ದಾರೆ';
+
+  @override
+  String get notOnChatMate => 'ಇನ್ನೂ ChatMate ನಲ್ಲಿ ಇಲ್ಲ';
+
+  @override
+  String get startChat => 'ಚಾಟ್';
+
+  @override
+  String get sendInvite => 'ಆಹ್ವಾನ';
+
+  @override
+  String get inviteSent => 'SMS ಆ್ಯಪ್‌ನಲ್ಲಿ ಆಹ್ವಾನ ತೆರೆಯಲಾಗಿದೆ';
+
+  @override
+  String get couldNotOpenSms => 'SMS ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ';
 }

@@ -108,5 +108,46 @@ class AppLocalizationsEn extends AppLocalizations {
   String get searchChats => 'Search chats...';
 
   @override
-  String get searchPeople => 'Search people';
+  String get searchPeople => 'Search';
+
+  @override
+  String get discoverPeople => 'Discover People';
+
+  @override
+  String get discoverSearchHint => 'Search by name or phone number';
+
+  @override
+  String get discoverEmptyTitle => 'Find people from your phone';
+
+  @override
+  String get discoverEmptySubtitle =>
+      'Search by contact name or mobile number. Your full contact list is never shown here.';
+
+  @override
+  String get discoverNoResults => 'No matching contacts found';
+
+  @override
+  String get contactsPermissionRequired =>
+      'Contacts permission is required to search people on your device.';
+
+  @override
+  String get openSettings => 'Open Settings';
+
+  @override
+  String get onChatMate => 'On ChatMate';
+
+  @override
+  String get notOnChatMate => 'Not on ChatMate yet';
+
+  @override
+  String get startChat => 'Chat';
+
+  @override
+  String get sendInvite => 'Invite';
+
+  @override
+  String get inviteSent => 'Invite opened in SMS app';
+
+  @override
+  String get couldNotOpenSms => 'Could not open SMS app';
 }

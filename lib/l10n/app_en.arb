@@ -32,5 +32,18 @@
   "login": "LOGIN",
   "continuee": "Continue",
   "searchChats": "Search chats...",
-  "searchPeople": "Search people"
+  "searchPeople": "Search",
+  "discoverPeople": "Discover People",
+  "discoverSearchHint": "Search by name or phone number",
+  "discoverEmptyTitle": "Find people from your phone",
+  "discoverEmptySubtitle": "Search by contact name or mobile number. Your full contact list is never shown here.",
+  "discoverNoResults": "No matching contacts found",
+  "contactsPermissionRequired": "Contacts permission is required to search people on your device.",
+  "openSettings": "Open Settings",
+  "onChatMate": "On ChatMate",
+  "notOnChatMate": "Not on ChatMate yet",
+  "startChat": "Chat",
+  "sendInvite": "Invite",
+  "inviteSent": "Invite opened in SMS app",
+  "couldNotOpenSms": "Could not open SMS app"
 }
