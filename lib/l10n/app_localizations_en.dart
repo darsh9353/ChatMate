@@ -114,21 +114,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get discoverPeople => 'Discover People';
 
   @override
-  String get discoverSearchHint => 'Search by name or phone number';
+  String get discoverSearchHint => 'Search by name or number';
 
   @override
-  String get discoverEmptyTitle => 'Find people from your phone';
+  String get discoverEmptyTitle => 'Find people from your device';
 
   @override
-  String get discoverEmptySubtitle =>
-      'Search by contact name or mobile number. Your full contact list is never shown here.';
+  String get discoverEmptySubtitle => 'Search by contact name or mobile number. Your full contact list is never shown here.';
 
   @override
   String get discoverNoResults => 'No matching contacts found';
 
   @override
-  String get contactsPermissionRequired =>
-      'Contacts permission is required to search people on your device.';
+  String get contactsPermissionRequired => 'Contacts permission is required to search people on your device.';
 
   @override
   String get openSettings => 'Open Settings';

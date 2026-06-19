@@ -146,7 +146,8 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
                     textInputAction: TextInputAction.search,
                     onSubmitted: (_) => _runSearch(),
                     decoration: InputDecoration(
-                      hintText: l10n?.discoverSearchHint ??
+                      hintText:
+                          l10n?.discoverSearchHint ??
                           'Search by name or phone number',
                       prefixIcon: const Icon(Icons.search),
                       suffixIcon: _searchController.text.isNotEmpty
@@ -199,7 +200,11 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.contacts_outlined, size: 56, color: theme.colorScheme.primary),
+              Icon(
+                Icons.contacts_outlined,
+                size: 56,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(height: 16),
               Text(
                 l10n?.contactsPermissionRequired ??
@@ -225,22 +230,11 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.person_search, size: 64, color: theme.colorScheme.primary),
               const SizedBox(height: 16),
               Text(
-                l10n?.discoverEmptyTitle ?? 'Find people from your phone',
+                l10n?.discoverEmptyTitle ?? 'Find people from your device',
                 style: theme.textTheme.titleMedium,
                 textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                l10n?.discoverEmptySubtitle ??
-                    'Search by contact name or mobile number. '
-                    'Your full contact list is never shown here.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
-                ),
               ),
             ],
           ),
@@ -251,14 +245,14 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
     if (_results.isEmpty) {
       return Center(
         child: Text(
-          l10n?.discoverNoResults ?? 'No matching contacts found for "$_lastQuery"',
+          l10n?.discoverNoResults ??
+              'No matching contacts found for "$_lastQuery"',
         ),
       );
     }
 
-    return ListView.separated(
+    return ListView.builder(
       itemCount: _results.length,
-      separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (context, index) {
         final result = _results[index];
         return _DiscoverResultTile(
@@ -315,7 +309,9 @@ class _DiscoverResultTile extends StatelessWidget {
                 ? (l10n?.onChatMate ?? 'On ChatMate')
                 : (l10n?.notOnChatMate ?? 'Not on ChatMate yet'),
             style: TextStyle(
-              color: result.isRegistered ? Colors.green : theme.colorScheme.outline,
+              color: result.isRegistered
+                  ? Colors.green
+                  : theme.colorScheme.outline,
               fontSize: 12,
             ),
           ),

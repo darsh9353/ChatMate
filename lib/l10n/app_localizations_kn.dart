@@ -120,15 +120,13 @@ class AppLocalizationsKn extends AppLocalizations {
   String get discoverEmptyTitle => 'ನಿಮ್ಮ ಫೋನ್‌ನಿಂದ ಜನರನ್ನು ಹುಡುಕಿ';
 
   @override
-  String get discoverEmptySubtitle =>
-      'ಸಂಪರ್ಕ ಹೆಸರು ಅಥವಾ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ. ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಪಟ್ಟಿ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.';
+  String get discoverEmptySubtitle => 'ಸಂಪರ್ಕ ಹೆಸರು ಅಥವಾ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯಿಂದ ಹುಡುಕಿ. ನಿಮ್ಮ ಸಂಪೂರ್ಣ ಸಂಪರ್ಕ ಪಟ್ಟಿ ಇಲ್ಲಿ ತೋರಿಸಲಾಗುವುದಿಲ್ಲ.';
 
   @override
   String get discoverNoResults => 'ಹೊಂದಾಣಿಕೆಯ ಸಂಪರ್ಕಗಳು ಕಂಡುಬಂದಿಲ್ಲ';
 
   @override
-  String get contactsPermissionRequired =>
-      'ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜನರನ್ನು ಹುಡುಕಲು ಸಂಪರ್ಕ ಅನುಮತಿ ಅಗತ್ಯ.';
+  String get contactsPermissionRequired => 'ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಜನರನ್ನು ಹುಡುಕಲು ಸಂಪರ್ಕ ಅನುಮತಿ ಅಗತ್ಯ.';
 
   @override
   String get openSettings => 'ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ';

@@ -299,30 +299,82 @@ abstract class AppLocalizations {
   /// **'Search'**
   String get searchPeople;
 
+  /// No description provided for @discoverPeople.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover People'**
   String get discoverPeople;
 
+  /// No description provided for @discoverSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or number'**
   String get discoverSearchHint;
 
+  /// No description provided for @discoverEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Find people from your device'**
   String get discoverEmptyTitle;
 
+  /// No description provided for @discoverEmptySubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by contact name or mobile number. Your full contact list is never shown here.'**
   String get discoverEmptySubtitle;
 
+  /// No description provided for @discoverNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No matching contacts found'**
   String get discoverNoResults;
 
+  /// No description provided for @contactsPermissionRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Contacts permission is required to search people on your device.'**
   String get contactsPermissionRequired;
 
+  /// No description provided for @openSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Settings'**
   String get openSettings;
 
+  /// No description provided for @onChatMate.
+  ///
+  /// In en, this message translates to:
+  /// **'On ChatMate'**
   String get onChatMate;
 
+  /// No description provided for @notOnChatMate.
+  ///
+  /// In en, this message translates to:
+  /// **'Not on ChatMate yet'**
   String get notOnChatMate;
 
+  /// No description provided for @startChat.
+  ///
+  /// In en, this message translates to:
+  /// **'Chat'**
   String get startChat;
 
+  /// No description provided for @sendInvite.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite'**
   String get sendInvite;
 
+  /// No description provided for @inviteSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite opened in SMS app'**
   String get inviteSent;
 
+  /// No description provided for @couldNotOpenSms.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open SMS app'**
   String get couldNotOpenSms;
 }
 
