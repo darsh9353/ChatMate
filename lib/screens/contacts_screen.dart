@@ -36,7 +36,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)?.allContacts ?? "All Contacts",
+          AppLocalizations.of(context)?.discoverPeople ?? "Discover People ",
         ),
         backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark

@@ -128,7 +128,7 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.discoverPeople ?? 'Discover People'),
+        title: Text(l10n?.allContacts ?? 'All contacts'),
         backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
