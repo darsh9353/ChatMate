@@ -1,6 +1,6 @@
 import 'package:chatmate/l10n/app_localizations.dart';
 import 'package:chatmate/screens/chat_screen/chat_screen.dart';
-import 'package:chatmate/screens/discover_people_screen.dart';
+import 'package:chatmate/screens/contacts_screen.dart';
 import 'package:chatmate/widgets/profile_image_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -320,7 +320,7 @@ class _HomeScreenState extends State<HomeScreen> {
               context,
               MaterialPageRoute(
                 builder: (_) =>
-                    DiscoverPeopleScreen(currentUserId: widget.currentUserId),
+                    ContactsScreen(currentUserId: widget.currentUserId),
               ),
             );
           },

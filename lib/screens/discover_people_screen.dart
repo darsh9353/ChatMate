@@ -25,10 +25,16 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
   final InviteService _inviteService = InviteService();
 
   List<DiscoverContactResult> _results = [];
-  bool _isSearching = false;
-  bool _hasSearched = false;
+  List<DiscoverContactResult> _allContacts = [];
+  bool _isLoading = true;
   bool _permissionDenied = false;
-  String _lastQuery = '';
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDeviceContacts();
+  }
 
   @override
   void dispose() {
@@ -36,45 +42,41 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
     super.dispose();
   }
 
-  Future<void> _runSearch() async {
-    final query = _searchController.text.trim();
-    if (query.isEmpty) return;
-
-    FocusScope.of(context).unfocus();
-
+  Future<void> _loadDeviceContacts() async {
     setState(() {
-      _isSearching = true;
-      _hasSearched = true;
+      _isLoading = true;
       _permissionDenied = false;
-      _lastQuery = query;
     });
 
     final granted = await _discoverService.requestContactsPermission();
     if (!granted) {
       if (!mounted) return;
       setState(() {
-        _isSearching = false;
+        _isLoading = false;
         _permissionDenied = true;
+        _allContacts = [];
         _results = [];
       });
       return;
     }
 
     try {
-      final results = await _discoverService.search(
-        query: query,
+      // Load all device contacts at once
+      final results = await _discoverService.loadAllDeviceContacts(
         currentUserId: widget.currentUserId,
       );
 
       if (!mounted) return;
       setState(() {
+        _allContacts = results;
         _results = results;
-        _isSearching = false;
+        _isLoading = false;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() {
-        _isSearching = false;
+        _isLoading = false;
+        _allContacts = [];
         _results = [];
       });
       ScaffoldMessenger.of(context).showSnackBar(
@@ -86,6 +88,21 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
         ),
       );
     }
+  }
+
+  void _filterContacts(String query) {
+    setState(() {
+      _searchQuery = query.toLowerCase();
+      if (_searchQuery.isEmpty) {
+        _results = _allContacts;
+      } else {
+        _results = _allContacts.where((contact) {
+          final name = contact.displayName.toLowerCase();
+          final phone = contact.phoneNumber.toLowerCase();
+          return name.contains(_searchQuery) || phone.contains(_searchQuery);
+        }).toList();
+      }
+    });
   }
 
   void _openChat(DiscoverContactResult result) {
@@ -128,7 +145,7 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n?.allContacts ?? 'All contacts'),
+        title: Text(l10n?.allContacts ?? 'All Contacts'),
         backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
@@ -138,48 +155,30 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    textInputAction: TextInputAction.search,
-                    onSubmitted: (_) => _runSearch(),
-                    decoration: InputDecoration(
-                      hintText:
-                          l10n?.discoverSearchHint ??
-                          'Search by name or phone number',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchController.text.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _results = [];
-                                  _hasSearched = false;
-                                  _permissionDenied = false;
-                                  _lastQuery = '';
-                                });
-                              },
-                            )
-                          : null,
-                      filled: true,
-                      fillColor: theme.colorScheme.surface,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    onChanged: (_) => setState(() {}),
-                  ),
+            child: TextField(
+              controller: _searchController,
+              onChanged: _filterContacts,
+              decoration: InputDecoration(
+                hintText:
+                    l10n?.discoverSearchHint ??
+                    'Search by name or phone number',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          _filterContacts('');
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: theme.colorScheme.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-                const SizedBox(width: 8),
-                FilledButton(
-                  onPressed: _isSearching ? null : _runSearch,
-                  child: Text(l10n?.searchPeople ?? 'Search'),
-                ),
-              ],
+              ),
             ),
           ),
           Expanded(child: _buildBody(theme, l10n)),
@@ -189,7 +188,7 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
   }
 
   Widget _buildBody(ThemeData theme, AppLocalizations? l10n) {
-    if (_isSearching) {
+    if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -208,7 +207,7 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
               const SizedBox(height: 16),
               Text(
                 l10n?.contactsPermissionRequired ??
-                    'Contacts permission is required to search people on your device.',
+                    'Contacts permission is required to view your contacts.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: theme.colorScheme.onSurface),
               ),
@@ -223,30 +222,11 @@ class _DiscoverPeopleScreenState extends State<DiscoverPeopleScreen> {
       );
     }
 
-    if (!_hasSearched) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 16),
-              Text(
-                l10n?.discoverEmptyTitle ?? 'Find people from your device',
-                style: theme.textTheme.titleMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     if (_results.isEmpty) {
       return Center(
         child: Text(
-          l10n?.discoverNoResults ??
-              'No matching contacts found for "$_lastQuery"',
+          l10n?.noUsersFound ??
+              'No contacts found',
         ),
       );
     }

@@ -20,6 +20,7 @@ class ContactsScreen extends StatefulWidget {
 class _ContactsScreenState extends State<ContactsScreen> {
   final TextEditingController _searchController = TextEditingController();
   String searchQuery = "";
+  bool _hasSearched = false;
 
   @override
   void dispose() {
@@ -36,7 +37,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          AppLocalizations.of(context)?.discoverPeople ?? "Discover People ",
+          AppLocalizations.of(context)?.discoverPeople ?? "Discover People",
         ),
         backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark
@@ -47,125 +48,158 @@ class _ContactsScreenState extends State<ContactsScreen> {
       body: Column(
         children: [
           /// SEARCH BAR
-          TextField(
-            controller: _searchController,
-            onChanged: (value) {
-              setState(() {
-                searchQuery = value.toLowerCase();
-              });
-            },
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              hintText:
-                  AppLocalizations.of(context)?.searchPeople ?? "Search People",
-              prefixIcon: const Icon(Icons.search),
-              suffixIcon: searchQuery.isNotEmpty
-                  ? IconButton(
-                      icon: const Icon(Icons.clear),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          searchQuery = "";
-                        });
-                      },
-                    )
-                  : null,
-              filled: true,
-              fillColor: theme.colorScheme.surface,
-              border: OutlineInputBorder(borderSide: BorderSide.none),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
+            child: TextField(
+              controller: _searchController,
+              onChanged: (value) {
+                setState(() {
+                  searchQuery = value.toLowerCase();
+                  _hasSearched = value.isNotEmpty;
+                });
+              },
+              keyboardType: TextInputType.phone,
+              decoration: InputDecoration(
+                hintText:
+                    AppLocalizations.of(context)?.searchByPhoneNumber ?? "Search by phone number",
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: searchQuery.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            searchQuery = "";
+                            _hasSearched = false;
+                          });
+                        },
+                      )
+                    : null,
+                filled: true,
+                fillColor: theme.colorScheme.surface,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
             ),
           ),
 
           ///  USER LIST
           Expanded(
-            child: StreamBuilder<List<UserModel>>(
-              stream: userRepo.getUsers(),
-              builder: (context, snapshot) {
-                if (!snapshot.hasData) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+            child: _hasSearched
+                ? StreamBuilder<List<UserModel>>(
+                    stream: userRepo.getUsers(),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData) {
+                        return const Center(child: CircularProgressIndicator());
+                      }
 
-                /// Remove current user
-                final users = snapshot.data!
-                    .where((user) => user.uid != widget.currentUserId)
-                    .toList();
+                      /// Remove current user
+                      final users = snapshot.data!
+                          .where((user) => user.uid != widget.currentUserId)
+                          .toList();
 
-                ///  FILTER LOGIC (NAME + PHONE)
-                final filteredUsers = users.where((user) {
-                  final name = user.name.toLowerCase();
-                  final phone = user.phoneNumber.toLowerCase();
+                      ///  FILTER LOGIC (PHONE ONLY)
+                      final filteredUsers = users.where((user) {
+                        final phone = user.phoneNumber.toLowerCase();
+                        return phone.contains(searchQuery);
+                      }).toList();
 
-                  return name.contains(searchQuery) ||
-                      phone.contains(searchQuery);
-                }).toList();
+                      final filteredUsers = users.where((user) {
+                        final phone = user.phoneNumber.toLowerCase();
+                        return phone.contains(searchQuery);
+                      }).toList();
 
-                if (filteredUsers.isEmpty) {
-                  return Center(
-                    child: Text(
-                      AppLocalizations.of(context)?.noUsersFound ??
-                          "No User Found",
-                    ),
-                  );
-                }
-
-                return ListView.builder(
-                  itemCount: filteredUsers.length,
-                  itemBuilder: (context, index) {
-                    final user = filteredUsers[index];
-
-                    return Container(
-                      padding: const EdgeInsets.symmetric(vertical: 5),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.secondary,
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                        ),
-                        leading: UserAvatar(userId: user.uid),
-
-                        title: Text(
-                          user.name,
-                          style: TextStyle(
-                            color: theme.colorScheme.onSecondary,
+                      if (filteredUsers.isEmpty) {
+                        return Center(
+                          child: Text(
+                            AppLocalizations.of(context)?.noUsersFound ??
+                                "No User Found",
                           ),
-                        ),
+                        );
+                      }
 
-                        subtitle: Text(
-                          user.phoneNumber,
-                          style: TextStyle(
-                            color: theme.colorScheme.onSecondary.withOpacity(
-                              0.7,
+                      return ListView.builder(
+                        itemCount: filteredUsers.length,
+                        itemBuilder: (context, index) {
+                          final user = filteredUsers[index];
+
+                          return Container(
+                            padding: const EdgeInsets.symmetric(vertical: 5),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondary,
                             ),
-                          ),
-                        ),
-
-                        onTap: () {
-                          final chatService = ChatService();
-
-                          final chatId = chatService.generateChatId(
-                            widget.currentUserId,
-                            user.uid,
-                          );
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                currentUserId: widget.currentUserId,
-                                chatId: chatId,
-                                otherUserId: user.uid,
-                                otherUserName: user.name,
+                            child: ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
                               ),
+                              leading: UserAvatar(userId: user.uid),
+
+                              title: Text(
+                                user.name,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSecondary,
+                                ),
+                              ),
+
+                              subtitle: Text(
+                                user.phoneNumber,
+                                style: TextStyle(
+                                  color: theme.colorScheme.onSecondary.withOpacity(
+                                    0.7,
+                                  ),
+                                ),
+                              ),
+
+                              onTap: () {
+                                final chatService = ChatService();
+
+                                final chatId = chatService.generateChatId(
+                                  widget.currentUserId,
+                                  user.uid,
+                                );
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                      currentUserId: widget.currentUserId,
+                                      chatId: chatId,
+                                      otherUserId: user.uid,
+                                      otherUserName: user.name,
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },
+                      );
+                    },
+                  )
+                : Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.person_search,
+                            size: 56,
+                            color: theme.colorScheme.primary,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            AppLocalizations.of(context)?.searchPhoneNumber ??
+                                'Search members by phone number',
+                            style: theme.textTheme.titleMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
                       ),
-                    );
-                  },
-                );
-              },
-            ),
+                    ),
+                  ),
           ),
         ],
       ),

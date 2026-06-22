@@ -17,6 +17,36 @@ class DiscoverPeopleService {
   Future<bool> requestContactsPermission() =>
       _deviceContactsService.requestPermission();
 
+  Future<List<DiscoverContactResult>> loadAllDeviceContacts({
+    required String currentUserId,
+  }) async {
+    final currentUser = await _userRepository.getUser(currentUserId);
+    final currentUserPhone = currentUser != null
+        ? PhoneUtil.normalize(currentUser.phoneNumber)
+        : '';
+
+    final allDeviceContacts = await _deviceContactsService.getAllContacts();
+    if (allDeviceContacts.isEmpty) return [];
+
+    final registeredByPhone = await _userRepository.getRegisteredUsersByPhone();
+
+    return allDeviceContacts
+        .where((entry) => entry.normalizedPhone != currentUserPhone)
+        .map((entry) {
+          final registered = registeredByPhone[entry.normalizedPhone];
+          if (registered?.uid == currentUserId) return null;
+
+          return DiscoverContactResult(
+            displayName: entry.name,
+            phoneNumber: entry.phone,
+            normalizedPhone: entry.normalizedPhone,
+            registeredUser: registered,
+          );
+        })
+        .whereType<DiscoverContactResult>()
+        .toList();
+  }
+
   Future<List<DiscoverContactResult>> search({
     required String query,
     required String currentUserId,
