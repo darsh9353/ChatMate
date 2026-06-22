@@ -47,9 +47,9 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
             .get();
 
         if (doc.exists) {
-          emit(ExistingUserState(user.uid));
+          emit(ExistingUserState(user.uid)); //existing user
         } else {
-          emit(NewUserState(user.uid));
+          emit(NewUserState(user.uid)); //new user
         }
       } catch (e) {
         emit(AuthErrorState("Verification failed"));

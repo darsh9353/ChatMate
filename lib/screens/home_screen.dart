@@ -26,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController _searchController = TextEditingController();
-  String searchQuery = "";
+  String searchQuery = ""; //Used for filtering chats.
 
   @override
   void initState() {
@@ -112,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 builder: (context, state) {
                   if (state is ChatListLoaded) {
                     final chats = state.chats.where((chat) {
+                      //Hide deleted chats
                       final hiddenFor = (chat as dynamic).hiddenFor ?? [];
                       return !hiddenFor.contains(widget.currentUserId);
                     }).toList();
@@ -124,7 +125,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                       final name = chat.participantNames[otherUserId] ?? "User";
 
-                      return name.toLowerCase().contains(searchQuery);
+                      return name.toLowerCase().contains(
+                        searchQuery,
+                      ); /*seaching searched query or name
+                       in the uernames  */
                     }).toList();
 
                     if (filteredChats.isEmpty) {
@@ -146,7 +150,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         );
 
                         final otherUserName =
-                            chat.participantNames[otherUserId] ?? "User";
+                            chat.participantNames[otherUserId] ??
+                            "User"; //get other usename
 
                         return Container(
                           margin: const EdgeInsets.symmetric(
@@ -173,8 +178,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (_) =>
-                                          ProfileImageView(imageUrl: imageUrl),
+                                      builder: (_) => ProfileImageView(
+                                        imageUrl: imageUrl,
+                                      ), //image view
                                     ),
                                   );
                                 }
@@ -212,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 Expanded(
                                   child: Text(
                                     chat.lastMessage,
-                                    overflow: TextOverflow.ellipsis,
+                                    overflow: TextOverflow.ellipsis, //show ....
                                     style: TextStyle(
                                       color: theme.colorScheme.onSecondary,
                                     ),

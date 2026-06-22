@@ -30,8 +30,8 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
   File? selectedImage;
   String imageUrl = ''; //  store ImageKit URL
 
-  final ImagePicker picker = ImagePicker();
-  final ImageKitService imageService = ImageKitService();
+  final ImagePicker picker = ImagePicker(); //Used to open gallery
+  final ImageKitService imageService = ImageKitService(); //used to upload image
 
   @override
   void initState() {
@@ -224,20 +224,21 @@ class _ProfileSetupScreenState extends State<ProfileSetupScreen> {
                           profileImage: imageUrl, // STORE URL
                           isOnline: true,
                           lastSeen: DateTime.now(),
-                        );
+                        ); //This creates the user object to store in Firestore.
 
                         await FirebaseFirestore.instance
                             .collection('users')
                             .doc(user.uid)
-                            .set(newUser.toMap(), SetOptions(merge: true));
+                            .set(
+                              newUser.toMap(),
+                              SetOptions(merge: true),
+                            ); //Firestore updates only provided fields
 
                         if (widget.isEdit) {
-                          // Coming from Settings
                           Navigator.pop(
                             context,
                             {'name': name, 'image': imageUrl},
-                          ); // go back to SettingsScreen (but data loading slowly)
-                        } else {
+                          ); //This sends updated values back to Settings screen
                           await NotificationService.instance.saveTokenForUser(
                             user.uid,
                           );

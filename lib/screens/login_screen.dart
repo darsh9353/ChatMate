@@ -70,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(20),
                           image: const DecorationImage(
                             image: AssetImage('assets/images/message.png'),
-                            fit: BoxFit.cover, // change to contain if needed
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),

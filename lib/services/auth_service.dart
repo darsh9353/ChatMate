@@ -15,7 +15,7 @@ class AuthService {
       phoneNumber: phoneNumber,
 
       verificationCompleted: (PhoneAuthCredential credential) async {
-        // Auto login (rare)
+        // Auto login
         await _auth.signInWithCredential(credential);
       },
 
@@ -58,6 +58,6 @@ class AuthService {
 
   // Logout
   Future<void> logout() async {
-    await _auth.signOut();
+    await _auth.signOut(); //built in firebase auth function
   }
 }

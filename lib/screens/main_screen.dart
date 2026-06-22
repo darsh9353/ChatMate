@@ -38,7 +38,7 @@ class _MainScreenState extends State<MainScreen> {
       body: IndexedStack(
         index: _currentIndex,
         children: pages,
-      ), //routes among screens based on index
+      ), //routes among screens based on index and prevent state
 
       bottomNavigationBar: MainBottomNav(
         currentIndex: _currentIndex,
