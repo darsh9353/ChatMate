@@ -45,5 +45,7 @@
   "startChat": "ಚಾಟ್",
   "sendInvite": "ಆಹ್ವಾನ",
   "inviteSent": "SMS ಆ್ಯಪ್‌ನಲ್ಲಿ ಆಹ್ವಾನ ತೆರೆಯಲಾಗಿದೆ",
-  "couldNotOpenSms": "SMS ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ"
+  "couldNotOpenSms": "SMS ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ",
+  "searchByPhoneNumber":"ಫೋನ್ ಸಂಖ್ಯೆ ಮೂಲಕ ಹುಡುಕಿ",
+  "searchPhoneNumber":"ಫೋನ್ ಸಂಖ್ಯೆ ಮೂಲಕ ಹುಡುಕಿ"
 } 

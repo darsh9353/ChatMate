@@ -148,4 +148,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get couldNotOpenSms => 'Could not open SMS app';
+
+  @override
+  String get searchByPhoneNumber => 'Search By Phone Number';
+
+  @override
+  String get searchPhoneNumber => 'Search Phone Number';
 }

@@ -45,5 +45,7 @@
   "startChat": "Chat",
   "sendInvite": "Invite",
   "inviteSent": "Invite opened in SMS app",
-  "couldNotOpenSms": "Could not open SMS app"
+  "couldNotOpenSms": "Could not open SMS app",
+  "searchByPhoneNumber":"Search By Phone Number",
+  "searchPhoneNumber":"Search Phone Number"
 }

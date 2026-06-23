@@ -148,4 +148,10 @@ class AppLocalizationsKn extends AppLocalizations {
 
   @override
   String get couldNotOpenSms => 'SMS ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ';
+
+  @override
+  String get searchByPhoneNumber => 'ಫೋನ್ ಸಂಖ್ಯೆ ಮೂಲಕ ಹುಡುಕಿ';
+
+  @override
+  String get searchPhoneNumber => 'ಫೋನ್ ಸಂಖ್ಯೆ ಮೂಲಕ ಹುಡುಕಿ';
 }

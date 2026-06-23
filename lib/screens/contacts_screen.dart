@@ -61,7 +61,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
               keyboardType: TextInputType.phone,
               decoration: InputDecoration(
                 hintText:
-                    AppLocalizations.of(context)?.searchByPhoneNumber ?? "Search by phone number",
+                    AppLocalizations.of(context)?.searchByPhoneNumber ??
+                    "Search by phone number",
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: searchQuery.isNotEmpty
                     ? IconButton(
@@ -106,11 +107,6 @@ class _ContactsScreenState extends State<ContactsScreen> {
                         return phone.contains(searchQuery);
                       }).toList();
 
-                      final filteredUsers = users.where((user) {
-                        final phone = user.phoneNumber.toLowerCase();
-                        return phone.contains(searchQuery);
-                      }).toList();
-
                       if (filteredUsers.isEmpty) {
                         return Center(
                           child: Text(
@@ -146,9 +142,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
                               subtitle: Text(
                                 user.phoneNumber,
                                 style: TextStyle(
-                                  color: theme.colorScheme.onSecondary.withOpacity(
-                                    0.7,
-                                  ),
+                                  color: theme.colorScheme.onSecondary
+                                      .withOpacity(0.7),
                                 ),
                               ),
 

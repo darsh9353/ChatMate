@@ -376,6 +376,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not open SMS app'**
   String get couldNotOpenSms;
+
+  /// No description provided for @searchByPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Search By Phone Number'**
+  String get searchByPhoneNumber;
+
+  /// No description provided for @searchPhoneNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Phone Number'**
+  String get searchPhoneNumber;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
