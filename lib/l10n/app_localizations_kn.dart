@@ -93,7 +93,7 @@ class AppLocalizationsKn extends AppLocalizations {
   String get cannotMessageUser => 'ನೀವು ಈ ಬಳಕೆದಾರರಿಗೆ ಸಂದೇಶ ಕಳುಹಿಸಲು ಸಾಧ್ಯವಿಲ್ಲ';
 
   @override
-  String get sendOTP => 'OTP ಕಳುಹಿಸಿ';
+  String get sendOTP => 'ಒಟಿಪಿ ಕಳುಹಿಸಿ';
 
   @override
   String get verifyItsYou => 'ಇದು ನೀವು ಎಂಬುದನ್ನು ಪರಿಶೀಲಿಸಿ';
@@ -132,22 +132,22 @@ class AppLocalizationsKn extends AppLocalizations {
   String get openSettings => 'ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ತೆರೆಯಿರಿ';
 
   @override
-  String get onChatMate => 'ChatMate ನಲ್ಲಿ ಇದ್ದಾರೆ';
+  String get onChatMate => 'ಚಾಟ್‌ಮೇಟ್ ನಲ್ಲಿ ಇದ್ದಾರೆ';
 
   @override
-  String get notOnChatMate => 'ಇನ್ನೂ ChatMate ನಲ್ಲಿ ಇಲ್ಲ';
+  String get notOnChatMate => 'ಇನ್ನೂ ಚಾಟ್‌ಮೇಟ್ ನಲ್ಲಿ ಇಲ್ಲ';
 
   @override
   String get startChat => 'ಚಾಟ್';
 
   @override
-  String get sendInvite => 'ಆಹ್ವಾನ';
+  String get sendInvite => 'ಎಸ್ಎಂಎಸ್ ಆಹ್ವಾನ';
 
   @override
-  String get inviteSent => 'SMS ಆ್ಯಪ್‌ನಲ್ಲಿ ಆಹ್ವಾನ ತೆರೆಯಲಾಗಿದೆ';
+  String get inviteSent => 'ಎಸ್ಎಂಎಸ್ ಆ್ಯಪ್‌ನಲ್ಲಿ ಆಹ್ವಾನ ತೆರೆಯಲಾಗಿದೆ';
 
   @override
-  String get couldNotOpenSms => 'SMS ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ';
+  String get couldNotOpenSms => 'ಎಸ್ಎಂಎಸ್ ಆ್ಯಪ್ ತೆರೆಯಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ';
 
   @override
   String get searchByPhoneNumber => 'ಫೋನ್ ಸಂಖ್ಯೆ ಮೂಲಕ ಹುಡುಕಿ';

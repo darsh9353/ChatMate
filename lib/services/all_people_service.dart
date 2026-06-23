@@ -1,23 +1,23 @@
-import 'package:chatmate/models/discover_contact_result.dart';
+import 'package:chatmate/models/all_contact_result.dart';
 import 'package:chatmate/models/user_model.dart';
 import 'package:chatmate/repositories/user_repository.dart';
-import 'package:chatmate/services/device_contacts_service.dart';
+import 'package:chatmate/services/all_contacts_service.dart';
 import 'package:chatmate/utils/phone_util.dart';
 
-class DiscoverPeopleService {
-  DiscoverPeopleService({
-    DeviceContactsService? deviceContactsService,
+class AllPeopleService {
+  AllPeopleService({
+    AllContactsService? deviceContactsService,
     UserRepository? userRepository,
-  })  : _deviceContactsService = deviceContactsService ?? DeviceContactsService(),
-        _userRepository = userRepository ?? UserRepository();
+  }) : _deviceContactsService = deviceContactsService ?? AllContactsService(),
+       _userRepository = userRepository ?? UserRepository();
 
-  final DeviceContactsService _deviceContactsService;
+  final AllContactsService _deviceContactsService;
   final UserRepository _userRepository;
 
   Future<bool> requestContactsPermission() =>
       _deviceContactsService.requestPermission();
 
-  Future<List<DiscoverContactResult>> loadAllDeviceContacts({
+  Future<List<AllContactResult>> loadAllDeviceContacts({
     required String currentUserId,
   }) async {
     final currentUser = await _userRepository.getUser(currentUserId);
@@ -30,24 +30,46 @@ class DiscoverPeopleService {
 
     final registeredByPhone = await _userRepository.getRegisteredUsersByPhone();
 
-    return allDeviceContacts
+    final results = allDeviceContacts
         .where((entry) => entry.normalizedPhone != currentUserPhone)
         .map((entry) {
           final registered = registeredByPhone[entry.normalizedPhone];
-          if (registered?.uid == currentUserId) return null;
 
-          return DiscoverContactResult(
+          if (registered?.uid == currentUserId) {
+            return null;
+          }
+
+          return AllContactResult(
             displayName: entry.name,
             phoneNumber: entry.phone,
             normalizedPhone: entry.normalizedPhone,
             registeredUser: registered,
           );
         })
-        .whereType<DiscoverContactResult>()
+        .whereType<AllContactResult>()
         .toList();
+
+    // Sort
+    results.sort((a, b) {
+      if (a.isRegistered && !b.isRegistered) {
+        return -1;
+      } //"Place a before b."
+
+      if (!a.isRegistered && b.isRegistered) {
+        return 1; //"Place a after b."
+      }
+      //If both are registered or not registered Then compare names
+      final aName = (a.registeredUser?.name ?? a.displayName).toLowerCase();
+
+      final bName = (b.registeredUser?.name ?? b.displayName).toLowerCase();
+
+      return aName.compareTo(bName);
+    });
+
+    return results;
   }
 
-  Future<List<DiscoverContactResult>> search({
+  Future<List<AllContactResult>> search({
     required String query,
     required String currentUserId,
   }) async {
@@ -61,20 +83,42 @@ class DiscoverPeopleService {
 
     final registeredByPhone = await _userRepository.getRegisteredUsersByPhone();
 
-    return deviceMatches
+    final results = deviceMatches
         .where((entry) => entry.normalizedPhone != currentUserPhone)
         .map((entry) {
           final registered = registeredByPhone[entry.normalizedPhone];
-          if (registered?.uid == currentUserId) return null;
 
-          return DiscoverContactResult(
+          if (registered?.uid == currentUserId) {
+            return null;
+          }
+
+          return AllContactResult(
             displayName: entry.name,
             phoneNumber: entry.phone,
             normalizedPhone: entry.normalizedPhone,
             registeredUser: registered,
           );
         })
-        .whereType<DiscoverContactResult>()
+        .whereType<AllContactResult>()
         .toList();
+
+    // Keep registered users at the top of search results too
+    results.sort((a, b) {
+      if (a.isRegistered && !b.isRegistered) {
+        return -1;
+      }
+
+      if (!a.isRegistered && b.isRegistered) {
+        return 1;
+      }
+
+      final aName = (a.registeredUser?.name ?? a.displayName).toLowerCase();
+
+      final bName = (b.registeredUser?.name ?? b.displayName).toLowerCase();
+
+      return aName.compareTo(bName);
+    });
+
+    return results;
   }
 }

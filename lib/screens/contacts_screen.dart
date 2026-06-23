@@ -1,26 +1,40 @@
 import 'package:chatmate/l10n/app_localizations.dart';
+import 'package:chatmate/models/discover_contact_result.dart';
 import 'package:chatmate/screens/chat_screen/chat_screen.dart';
+import 'package:chatmate/services/all_people_service.dart';
+import 'package:chatmate/services/invite_service.dart';
+import 'package:chatmate/utils/chat_util.dart';
+import 'package:chatmate/utils/phone_util.dart';
 import 'package:chatmate/widgets/user_avathar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../models/user_model.dart';
-import '../repositories/user_repository.dart';
-import '../repositories/chat_repository.dart';
-import 'package:chatmate/utils/chat_util.dart';
+import 'package:permission_handler/permission_handler.dart';
 
-class ContactsScreen extends StatefulWidget {
+class AllContacts extends StatefulWidget {
   final String currentUserId;
 
-  const ContactsScreen({super.key, required this.currentUserId});
+  const AllContacts({super.key, required this.currentUserId});
 
   @override
-  State<ContactsScreen> createState() => _ContactsScreenState();
+  State<AllContacts> createState() => _AllContactsState();
 }
 
-class _ContactsScreenState extends State<ContactsScreen> {
+class _AllContactsState extends State<AllContacts> {
   final TextEditingController _searchController = TextEditingController();
-  String searchQuery = "";
-  bool _hasSearched = false;
+  final AllPeopleService _discoverService = AllPeopleService();
+  final InviteService _inviteService = InviteService();
+
+  List<AllContactResult> _results = [];
+  List<AllContactResult> _allContacts = [];
+  bool _isLoading = true;
+  bool _permissionDenied = false;
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDeviceContacts();
+  }
 
   @override
   void dispose() {
@@ -28,51 +42,133 @@ class _ContactsScreenState extends State<ContactsScreen> {
     super.dispose();
   }
 
+  Future<void> _loadDeviceContacts() async {
+    setState(() {
+      _isLoading = true;
+      _permissionDenied = false;
+    });
+
+    final granted = await _discoverService.requestContactsPermission();
+    if (!granted) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _permissionDenied = true;
+        _allContacts = [];
+        _results = [];
+      });
+      return;
+    }
+
+    try {
+      // Load all device contacts at once
+      final results = await _discoverService.loadAllDeviceContacts(
+        currentUserId: widget.currentUserId,
+      );
+
+      if (!mounted) return;
+      setState(() {
+        _allContacts = results;
+        _results = results;
+        _isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        _allContacts = [];
+        _results = [];
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)?.somethingWentWrong ??
+                'Something went wrong',
+          ),
+        ),
+      );
+    }
+  }
+
+  void _filterContacts(String query) {
+    setState(() {
+      _searchQuery = query.toLowerCase();
+      if (_searchQuery.isEmpty) {
+        _results = _allContacts;
+      } else {
+        _results = _allContacts.where((contact) {
+          final name = contact.displayName.toLowerCase();
+          final phone = contact.phoneNumber.toLowerCase();
+          return name.contains(_searchQuery) || phone.contains(_searchQuery);
+        }).toList();
+      }
+    });
+  }
+
+  void _openChat(AllContactResult result) {
+    final user = result.registeredUser!;
+    final chatId = ChatService().generateChatId(widget.currentUserId, user.uid);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChatScreen(
+          currentUserId: widget.currentUserId,
+          chatId: chatId,
+          otherUserId: user.uid,
+          otherUserName: user.name,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _sendInvite(AllContactResult result) async {
+    final sent = await _inviteService.sendSmsInvite(result.phoneNumber);
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          sent
+              ? (AppLocalizations.of(context)?.inviteSent ?? 'Invite sent')
+              : (AppLocalizations.of(context)?.couldNotOpenSms ??
+                    'Could not open SMS app'),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final userRepo = UserRepository();
-    final chatRepo = ChatRepository();
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)?.discoverPeople ?? "Discover People",
-        ),
+        title: Text(l10n?.allContacts ?? 'All Contacts'),
         backgroundColor: theme.colorScheme.secondary,
         systemOverlayStyle: theme.brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
       ),
-
       body: Column(
         children: [
-          /// SEARCH BAR
           Padding(
             padding: const EdgeInsets.fromLTRB(12, 12, 12, 8),
             child: TextField(
               controller: _searchController,
-              onChanged: (value) {
-                setState(() {
-                  searchQuery = value.toLowerCase();
-                  _hasSearched = value.isNotEmpty;
-                });
-              },
-              keyboardType: TextInputType.phone,
+              onChanged: _filterContacts,
               decoration: InputDecoration(
                 hintText:
-                    AppLocalizations.of(context)?.searchByPhoneNumber ??
-                    "Search by phone number",
+                    l10n?.discoverSearchHint ??
+                    'Search by name or phone number',
                 prefixIcon: const Icon(Icons.search),
-                suffixIcon: searchQuery.isNotEmpty
+                suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: () {
                           _searchController.clear();
-                          setState(() {
-                            searchQuery = "";
-                            _hasSearched = false;
-                          });
+                          _filterContacts('');
                         },
                       )
                     : null,
@@ -85,119 +181,126 @@ class _ContactsScreenState extends State<ContactsScreen> {
               ),
             ),
           ),
+          Expanded(child: _buildBody(theme, l10n)),
+        ],
+      ),
+    );
+  }
 
-          ///  USER LIST
-          Expanded(
-            child: _hasSearched
-                ? StreamBuilder<List<UserModel>>(
-                    stream: userRepo.getUsers(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+  Widget _buildBody(ThemeData theme, AppLocalizations? l10n) {
+    if (_isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-                      /// Remove current user
-                      final users = snapshot.data!
-                          .where((user) => user.uid != widget.currentUserId)
-                          .toList();
+    if (_permissionDenied) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.contacts_outlined,
+                size: 56,
+                color: theme.colorScheme.primary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                l10n?.contactsPermissionRequired ??
+                    'Contacts permission is required to view your contacts.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: theme.colorScheme.onSurface),
+              ),
+              const SizedBox(height: 16),
+              FilledButton(
+                onPressed: openAppSettings,
+                child: Text(l10n?.openSettings ?? 'Open Settings'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
-                      ///  FILTER LOGIC (PHONE ONLY)
-                      final filteredUsers = users.where((user) {
-                        final phone = user.phoneNumber.toLowerCase();
-                        return phone.contains(searchQuery);
-                      }).toList();
+    if (_results.isEmpty) {
+      return Center(child: Text(l10n?.noUsersFound ?? 'No contacts found'));
+    }
 
-                      if (filteredUsers.isEmpty) {
-                        return Center(
-                          child: Text(
-                            AppLocalizations.of(context)?.noUsersFound ??
-                                "No User Found",
-                          ),
-                        );
-                      }
+    return ListView.builder(
+      itemCount: _results.length,
+      itemBuilder: (context, index) {
+        final result = _results[index];
+        return _ContactsResultTile(
+          result: result,
+          onChat: () => _openChat(result),
+          onInvite: () => _sendInvite(result),
+        );
+      },
+    );
+  }
+}
 
-                      return ListView.builder(
-                        itemCount: filteredUsers.length,
-                        itemBuilder: (context, index) {
-                          final user = filteredUsers[index];
+class _ContactsResultTile extends StatelessWidget {
+  final AllContactResult result;
+  final VoidCallback onChat;
+  final VoidCallback onInvite;
 
-                          return Container(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.secondary,
-                            ),
-                            child: ListTile(
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              leading: UserAvatar(userId: user.uid),
+  const _ContactsResultTile({
+    required this.result,
+    required this.onChat,
+    required this.onInvite,
+  });
 
-                              title: Text(
-                                user.name,
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSecondary,
-                                ),
-                              ),
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final registered = result.registeredUser;
 
-                              subtitle: Text(
-                                user.phoneNumber,
-                                style: TextStyle(
-                                  color: theme.colorScheme.onSecondary
-                                      .withOpacity(0.7),
-                                ),
-                              ),
-
-                              onTap: () {
-                                final chatService = ChatService();
-
-                                final chatId = chatService.generateChatId(
-                                  widget.currentUserId,
-                                  user.uid,
-                                );
-
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatScreen(
-                                      currentUserId: widget.currentUserId,
-                                      chatId: chatId,
-                                      otherUserId: user.uid,
-                                      otherUserName: user.name,
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  )
-                : Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.person_search,
-                            size: 56,
-                            color: theme.colorScheme.primary,
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            AppLocalizations.of(context)?.searchPhoneNumber ??
-                                'Search members by phone number',
-                            style: theme.textTheme.titleMedium,
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      leading: registered != null
+          ? UserAvatar(userId: registered.uid)
+          : CircleAvatar(
+              backgroundColor: theme.colorScheme.secondary,
+              child: Text(
+                result.displayName.isNotEmpty
+                    ? result.displayName[0].toUpperCase()
+                    : '?',
+                style: TextStyle(color: theme.colorScheme.onSecondary),
+              ),
+            ),
+      title: Text(
+        registered?.name ?? result.displayName,
+        style: const TextStyle(fontWeight: FontWeight.w600),
+      ),
+      subtitle: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(PhoneUtil.toIndiaE164(result.phoneNumber)),
+          const SizedBox(height: 4),
+          Text(
+            result.isRegistered
+                ? (l10n?.onChatMate ?? 'On ChatMate')
+                : (l10n?.notOnChatMate ?? 'Not on ChatMate yet'),
+            style: TextStyle(
+              color: result.isRegistered
+                  ? Colors.green
+                  : theme.colorScheme.outline,
+              fontSize: 12,
+            ),
           ),
         ],
       ),
+      trailing: result.isRegistered
+          ? FilledButton(
+              onPressed: onChat,
+              child: Text(l10n?.startChat ?? 'Chat'),
+            )
+          : OutlinedButton(
+              onPressed: onInvite,
+              child: Text(l10n?.sendInvite ?? 'Invite'),
+            ),
     );
   }
 }

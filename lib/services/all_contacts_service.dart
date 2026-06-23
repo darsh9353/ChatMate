@@ -1,7 +1,7 @@
 import 'package:chatmate/utils/phone_util.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 
-class DeviceContactsService {
+class AllContactsService {
   List<Contact>? _cachedContacts;
 
   Future<bool> requestPermission() async {
@@ -15,7 +15,8 @@ class DeviceContactsService {
 
   /// Returns all device contacts.
   /// Contacts are loaded and cached for later use.
-  Future<List<({String name, String phone, String normalizedPhone})>> getAllContacts() async {
+  Future<List<({String name, String phone, String normalizedPhone})>>
+  getAllContacts() async {
     final contacts = await _loadContacts();
     final results = <({String name, String phone, String normalizedPhone})>[];
     final seenPhones = <String>{};
@@ -33,11 +34,17 @@ class DeviceContactsService {
         if (seenPhones.contains(normalized)) continue;
 
         seenPhones.add(normalized);
-        results.add((name: name.isEmpty ? phone : name, phone: phone, normalizedPhone: normalized));
+        results.add((
+          name: name.isEmpty ? phone : name,
+          phone: phone,
+          normalizedPhone: normalized,
+        ));
       }
     }
 
-    results.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    results.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
     return results;
   }
 
@@ -69,17 +76,25 @@ class DeviceContactsService {
 
         final phoneDigits = phone.replaceAll(RegExp(r'\D'), '');
         final nameMatches = name.toLowerCase().contains(queryLower);
-        final phoneMatches = queryDigits.isNotEmpty &&
-            (phoneDigits.contains(queryDigits) || normalized.contains(queryDigits));
+        final phoneMatches =
+            queryDigits.isNotEmpty &&
+            (phoneDigits.contains(queryDigits) ||
+                normalized.contains(queryDigits));
 
         if (!nameMatches && !phoneMatches) continue;
 
         seenPhones.add(normalized);
-        results.add((name: name.isEmpty ? phone : name, phone: phone, normalizedPhone: normalized));
+        results.add((
+          name: name.isEmpty ? phone : name,
+          phone: phone,
+          normalizedPhone: normalized,
+        ));
       }
     }
 
-    results.sort((a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()));
+    results.sort(
+      (a, b) => a.name.toLowerCase().compareTo(b.name.toLowerCase()),
+    );
     return results;
   }
 

@@ -1,5 +1,5 @@
 import 'package:chatmate/repositories/auth_repository.dart';
-import 'package:chatmate/screens/discover_people_screen.dart';
+import 'package:chatmate/screens/contacts_screen.dart';
 import 'package:chatmate/screens/home_screen.dart';
 import 'package:chatmate/screens/settings_screen.dart';
 import 'package:chatmate/widgets/bottom_navbar.dart';
@@ -30,7 +30,7 @@ class _MainScreenState extends State<MainScreen> {
 
     final List<Widget> pages = [
       HomeScreen(currentUserId: user!.uid),
-      DiscoverPeopleScreen(currentUserId: user.uid),
+      AllContacts(currentUserId: user.uid), //
       SettingsScreen(),
     ];
 
